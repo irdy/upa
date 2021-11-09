@@ -11,6 +11,45 @@
 <body>
     <h1 id="heading">MAIN PAGE</h1>
     <button id="make_req_btn"><p>make request!</p></button>
+    <p></p>
+    <form id="create_user" name="create_user" action="">
+        <div>
+            <label for="username">user_id</label>
+            <input autofocus name="user_id" id="user_id" type="number"><br>
+        </div>
+        <div>
+            <label for="username">username</label>
+            <input autofocus name="username" id="username" type="text"><br>
+        </div>
+        <div>
+            <label for="password">password</label>
+            <input name="password" id="password" type="text"><br>
+        </div>
+        <div>
+            <label for="auth_token">auth_token</label>
+            <input name="auth_token" id="auth_token" type="text"><br>
+        </div>
+        <div>
+            <div>
+                <label for="post">Post</label>
+                <input type="radio" name="actions" id="post" value="post" checked>
+            </div>
+            <div>
+                <label for="put">Put</label>
+                <input type="radio" name="actions" id="put" value="put">
+            </div>
+            <div>
+                <label for="patch">Patch</label>
+                <input type="radio" name="actions" id="patch" value="patch">
+            </div>
+            <div>
+                <label for="delete">Delete</label>
+                <input type="radio" name="actions" id="delete" value="delete">
+            </div>
+        </div>
+        <input type="submit" name="post" value="Submit!">
+    </form>
+
     <div>
         <pre id="console"></pre>
     </div>

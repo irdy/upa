@@ -1,4 +1,6 @@
 import os
+from database import database_url
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 
@@ -7,7 +9,7 @@ class Config:
     TESTING = False
     CSRF_ENABLED = True
     # SECRET_KEY: os.getenv("SECRET_KEY", "this-is-the-default-key")
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'postgresql:///use_push_dev')
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', database_url)
 
 
 class ProductionConfig:
