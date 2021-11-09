@@ -4,13 +4,15 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
 
-def get_locale_database_url():
-    from private_config import DATABASE_LOGIN, DATABASE_PASS
-    database_url = f'postgresql://{DATABASE_LOGIN}:{DATABASE_PASS}@localhost:5432/use_push_dev'
-    return database_url
+# def get_locale_database_url():
+#     from private_config import DATABASE_LOGIN, DATABASE_PASS
+#     locale_database_url = f'postgresql://{DATABASE_LOGIN}:{DATABASE_PASS}@localhost:5432/use_push_dev'
+#     return locale_database_url
 
 
-engine = create_engine(os.environ.get('DATABASE_URL', get_locale_database_url()))
+# database_url = os.environ.get('DATABASE_URL', get_locale_database_url())
+database_url = os.environ.get('DATABASE_URL')
+engine = create_engine(database_url)
 
 db_session = scoped_session(sessionmaker(autocommit=False,
                                          autoflush=False,

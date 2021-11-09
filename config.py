@@ -9,7 +9,7 @@ class Config:
     TESTING = False
     CSRF_ENABLED = True
     # SECRET_KEY: os.getenv("SECRET_KEY", "this-is-the-default-key")
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', database_url)
+    SQLALCHEMY_DATABASE_URI = database_url
 
 
 class ProductionConfig:
