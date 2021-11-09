@@ -2,11 +2,15 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from private_config import DATABASE_LOGIN, DATABASE_PASS
 
-database_url = f'postgresql://{DATABASE_LOGIN}:{DATABASE_PASS}@localhost:5432/use_push_dev'
 
-engine = create_engine(os.environ.get('DATABASE_URL', database_url))
+def get_locale_database_url():
+    from private_config import DATABASE_LOGIN, DATABASE_PASS
+    database_url = f'postgresql://{DATABASE_LOGIN}:{DATABASE_PASS}@localhost:5432/use_push_dev'
+    return database_url
+
+
+engine = create_engine(os.environ.get('DATABASE_URL', get_locale_database_url()))
 
 db_session = scoped_session(sessionmaker(autocommit=False,
                                          autoflush=False,
