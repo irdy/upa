@@ -1,5 +1,6 @@
 from setuptools import setup
 
+print("setup")
 setup(
     name="use_push_app",
     packages=['use_push_app'],
