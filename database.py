@@ -3,15 +3,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
+database_url = os.environ.get("DATABASE_URL")
 
-# def get_locale_database_url():
-#     from private_config import DATABASE_LOGIN, DATABASE_PASS
-#     locale_database_url = f'postgresql://{DATABASE_LOGIN}:{DATABASE_PASS}@localhost:5432/use_push_dev'
-#     return locale_database_url
-
-
-# database_url = os.environ.get('DATABASE_URL', get_locale_database_url())
-database_url = os.environ.get('DATABASE_URL')
+# Heroku patch
 if database_url and database_url.startswith("postgres://"):
     database_url = database_url.replace("postgres://", "postgresql://", 1)
 
