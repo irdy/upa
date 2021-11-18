@@ -1,28 +1,66 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
+import uuid
+import bcrypt
+from sqlalchemy import Column, Integer, String, ForeignKey, func, DateTime
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from database import Base
 from sqlalchemy_serializer import SerializerMixin
+from sqlalchemy.ext.hybrid import hybrid_property
 
 
 class User(Base, SerializerMixin):
     __tablename__ = 'users'
+
+    serialize_only = ('id', 'username', 'created_at', 'updated_at')
+
     id = Column(Integer, primary_key=True)
     username = Column(String(50), unique=True, nullable=False)
-    password = Column(String(50))
-    auth_token = Column(String(200))
-    contacts = relationship("Contact", cascade="all, delete-orphan")
+    password_hash = Column(String(128), nullable=False)
 
-    def __init__(self, username, password=None, auth_token=None):
+    contacts = relationship("Contact", cascade="all, delete-orphan")
+    refresh_tokens = relationship("RefreshToken", cascade="all, delete-orphan")
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    @hybrid_property
+    def password(self):
+        return self.password_hash
+
+    @password.setter
+    def password(self, password: str):
+        pw_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+        self.password_hash = pw_hash.decode('utf-8')
+
+    def __init__(self, username, password):
         self.username = username
         self.password = password
-        self.auth_token = auth_token
+
+    def verify_password(self, password: str) -> bool:
+        return bcrypt.checkpw(password.encode('utf-8'), self.password.encode('utf-8'))
 
     def __repr__(self):
         return f'<User {self.username!r}>'
 
 
+class RefreshToken(Base, SerializerMixin):
+    __tablename__ = 'refresh_tokens'
+
+    id = Column(Integer, primary_key=True)
+    token = Column(String, unique=True)
+    token_family = Column(UUID(as_uuid=True), unique=True, default=uuid.uuid4)
+    user_id = Column(Integer, ForeignKey('users.id'))
+
+    def __init__(self, token=None):
+        self.token = token
+
+    def __repr__(self):
+        return f'<Refresh Token {self.token!r}'
+
+
 class Contact(Base, SerializerMixin):
     __tablename__ = 'contacts'
+
+    serialize_rules = ('-push_subscriptions',)
 
     id = Column(Integer, primary_key=True)
     name = Column(String(50), unique=True, nullable=False)

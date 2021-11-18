@@ -8,22 +8,14 @@ from use_push_app.utils import U, QueryUtils, Validator
 
 @app.route('/api/users/<int:user_id>/contacts', methods=['POST'])
 def create_contact(user_id):
-    data = request.get_json()
+    data = U.get_request_payload()
 
     contact_info = data["contact_info"]
     push_subscription = data["push_subscription"]
 
-    error_response = Validator.validate_required_keys(contact_info, ["name"])
-    if error_response is not None:
-        return error_response
-
-    error_response = Validator.validate_unique(Contact, 'Contact', 'name', contact_info["name"])
-    if error_response is not None:
-        return error_response
-
-    error_response = validate_push_sub(push_subscription)
-    if error_response is not None:
-        return error_response
+    Validator.validate_required_keys(contact_info, ["name"])
+    Validator.validate_unique(Contact, 'Contact', 'name', contact_info["name"])
+    validate_push_sub(push_subscription)
 
     contact = Contact(name=contact_info["name"], user_id=user_id)
 
@@ -61,10 +53,7 @@ def update_delete_contact(contact_id):
 
 
 def patch_contact(contact_id: int):
-    # validate Request Content-Type
-    body = U.extract_request_body(request)
-    if body is None:
-        return U.make_incorrect_request_content_type_resp()
-
-    return QueryUtils.update(Contact, 'Contact', contact_id, ['name'], body)
+    body = U.get_request_payload()
+    data = body['contact_info']
+    return QueryUtils.update(Contact, 'Contact', contact_id, ['name'], data)
 

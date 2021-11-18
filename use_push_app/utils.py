@@ -13,9 +13,9 @@ example:
 }
 """
 from functools import reduce
-from typing import Any, List
+from typing import Any, List, Tuple
 
-from flask import make_response, jsonify
+from flask import make_response, jsonify, abort, request, Response
 from database import db_session, Base
 from use_push_app.messages import messages
 
@@ -35,27 +35,31 @@ class U:
         )
 
     @staticmethod
-    def extract_request_body(request) -> dict or None:
-        if request.is_json:
-            return request.get_json()
-        elif request.form:
-            return request.form.to_dict()
-        else:
-            return None
+    def get_request_payload() -> dict or Response:
+        if not request.is_json:
+            return abort(U.make_failed_response('INCORRECT_REQUEST_CONTENT_TYPE_HEADER', 400))
+
+        json = request.get_json()
+        if "payload" not in json:
+            return abort(U.make_failed_response('NO_PAYLOAD', 400))
+
+        return json["payload"]
 
     @staticmethod
-    def make_incorrect_request_content_type_resp():
-        resp_body_dict = U.make_resp_json_body(U.fail, None, 'Data must be a valid JSON or FormData!')
-        return make_response(jsonify(resp_body_dict), 400)
-
-    @staticmethod
-    def make_is_not_allowed_for_update_keys_resp(is_not_allowed_for_update_keys_dict: dict):
-        resp_body_dict = U.make_resp_json_body(U.fail, is_not_allowed_for_update_keys_dict)
-        return make_response(jsonify(resp_body_dict), 400)
+    def make_failed_response(message_type: str, status_code: int, data=None):
+        message = messages[message_type] if message_type else None
+        resp_body_dict = U.make_resp_json_body(U.fail, data, message)
+        return make_response(jsonify(resp_body_dict), status_code)
 
     @staticmethod
     def to_snake_case(string: str):
         return reduce(lambda x, y: x + ('_' if y.isupper() else '') + y, string).lower()
+
+    @staticmethod
+    def drop_keys_from_dict(entries: Tuple, data: dict):
+        for key in entries:
+            if key in data:
+                del data[key]
 
 
 class QueryUtils:
@@ -75,21 +79,17 @@ class QueryUtils:
 
     @staticmethod
     def update(model, model_name: str, _id: int, allowed_keys_for_update: List[str], data: dict):
-        base_query = model.query.filter_by(id=_id)
-        query = base_query.one_or_none()
+        query = model.query.filter_by(id=_id).one_or_none()
 
         if query is None:
             return QueryUtils.make_does_not_exist_resp(model_name, _id)
 
-        error_response = Validator.validate_required_keys(data, allowed_keys_for_update)
-        if error_response is not None:
-            return error_response
+        Validator.validate_required_keys(data, allowed_keys_for_update)
+        Validator.validate_allowed_keys_for_update(data, allowed_keys_for_update)
 
-        error_response = Validator.validate_allowed_keys_for_update(data, allowed_keys_for_update)
-        if error_response is not None:
-            return error_response
+        for key, value in data.items():
+            setattr(query, key, value)
 
-        base_query.update(data)
         db_session.commit()
 
         return QueryUtils.make_success_response('UPDATED', model_name, query)
@@ -112,7 +112,12 @@ class QueryUtils:
         if query is None:
             return QueryUtils.make_does_not_exist_resp(model_name, _id)
 
-        resp_json_body = U.make_resp_json_body(U.success, {U.to_snake_case(model_name): query.to_dict()})
+        resp_json_body = U.make_resp_json_body(
+            U.success,
+            {
+                U.to_snake_case(model_name): query.to_dict()
+            }
+        )
         return jsonify(resp_json_body)
 
     @staticmethod
@@ -145,9 +150,28 @@ class Validator:
                 messages['ALREADY_EXISTS'](model_name, unique_key, query.to_dict())
             )
 
-            return make_response(resp_body_dict, 409)
+            response = make_response(resp_body_dict, 409)
+            return abort(response)
 
         return None
+
+    @staticmethod
+    def validate_no_exists(model: Any, model_name: str, unique_key: str, value: str):
+        query = model.query.filter(getattr(model, unique_key) == value).one_or_none()
+
+        user_dict = dict()
+        user_dict[unique_key] = value
+
+        if query is None:
+            resp_body_dict = U.make_resp_json_body(
+                U.fail,
+                None,
+                messages['NO_EXISTS'](model_name, unique_key, user_dict)
+            )
+
+            return abort(make_response(jsonify(resp_body_dict), 404))
+
+        return query
 
     @staticmethod
     def validate_required_keys(data: dict, required_keys: List[str]):
@@ -158,8 +182,8 @@ class Validator:
                 validation_errors[key] = f"{key} is required"
 
         if validation_errors:
-            resp_body_dict = U.make_resp_json_body(U.fail, validation_errors)
-            return make_response(jsonify(resp_body_dict), 400)
+            response = U.make_failed_response("", 400, validation_errors)
+            return abort(response)
 
         return None
 
@@ -174,6 +198,7 @@ class Validator:
             is_not_allowed_for_update_keys_dict[key] = f"{key} can't be patched"
 
         if is_not_allowed_for_update_keys_dict:
-            return U.make_is_not_allowed_for_update_keys_resp(is_not_allowed_for_update_keys_dict)
+            response = U.make_failed_response("", 400, is_not_allowed_for_update_keys_dict)
+            return abort(response)
 
         return None

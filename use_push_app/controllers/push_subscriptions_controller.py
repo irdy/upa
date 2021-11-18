@@ -8,10 +8,8 @@ from use_push_app.utils import QueryUtils, Validator, U
 
 @app.route('/api/contacts/<int:contact_id>/push_subscriptions', methods=['POST'])
 def create_push_sub(contact_id):
-    data = request.get_json()
-    error_response = validate_push_sub(data)
-    if error_response is not None:
-        return error_response
+    data = U.get_request_payload()
+    validate_push_sub(data)
 
     push_subscription = construct_push_sub(data, request, contact_id)
     db_session.add(push_subscription)
@@ -64,18 +62,14 @@ def get_push_sub_by_endpoint(sub_endpoint: str):
 # data = {sub_endpoint: "hash2655237"}
 def validate_push_sub(data: dict):
     sub_endpoint_key = 'sub_endpoint'
-    error_response = Validator.validate_required_keys(data, [sub_endpoint_key])
-    if error_response is not None:
-        return error_response
+    Validator.validate_required_keys(data, [sub_endpoint_key])
 
-    error_response = Validator.validate_unique(
+    Validator.validate_unique(
         PushSubscription,
         'PushSubscription',
         sub_endpoint_key,
         data[sub_endpoint_key]
     )
-    if error_response is not None:
-        return error_response
 
     return None
 

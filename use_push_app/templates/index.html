@@ -6,12 +6,14 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>PushApp</title>
-    <script src="../static/index.js"></script>
+    <script defer src="../static/utils.js"></script>
+    <script defer src="../static/index.js"></script>
 </head>
 <body>
+    <header>
+        <p>{{ message }}</p>
+    </header>
     <h1 id="heading">MAIN PAGE</h1>
-    <button id="make_req_btn"><p>make request!</p></button>
-    <p></p>
     <form id="create_user" name="create_user" action="">
         <div>
             <label for="username">user_id</label>
@@ -24,10 +26,6 @@
         <div>
             <label for="password">password</label>
             <input name="password" id="password" type="text"><br>
-        </div>
-        <div>
-            <label for="auth_token">auth_token</label>
-            <input name="auth_token" id="auth_token" type="text"><br>
         </div>
         <div>
             <div>
