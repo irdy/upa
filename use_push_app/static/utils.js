@@ -5,7 +5,7 @@ const public_paths = [
     '/sign_up',
     '/api/auth/sign_in',
     '/api/auth/sign_up',
-    '/api/auth/sign_out',
+    // '/api/auth/sign_out',
     '/api/auth/refresh_tokens',
     '/sandbox'
 ]

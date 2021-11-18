@@ -44,5 +44,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     });
 
+    document.querySelector(".sign_out").addEventListener("click", async e => {
+        const data = await Utils.makeJSONRequest('/api/auth/sign_out', {
+            method: 'POST',
+        });
+    });
+
 });
 

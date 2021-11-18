@@ -57,7 +57,7 @@ def auth_sign_up():
     return create_user(data)
 
 
-@app.route('/api/auth/sign_out')
+@app.route('/api/auth/sign_out', methods=['POST'])
 def auth_logout():
     refresh_token = TokenManager.get_refresh_token_from_request()
     if refresh_token is None:
@@ -77,6 +77,9 @@ def refresh_tokens():
         return U.make_failed_response("REFRESH_TOKEN_DOES_NOT_EXIST", 401)
 
     refresh_token_query = TokenManager.find_token_query_with_same_token_family(refresh_token)
+
+    if not refresh_token_query.token:
+        return U.make_failed_response("USER_IS_LOGGED_OUT", 401)
 
     # compare tokens, both token verified inside - try: jwt.decode, except: 401
     if TokenManager.tokens_are_not_matched(refresh_token, refresh_token_query.token):

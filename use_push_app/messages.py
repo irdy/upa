@@ -21,6 +21,7 @@ messages = {
     'NO_TOKEN_FAMILY_INTO_TOKEN': 'Token family is not found into Refresh Token',
     'INCORRECT_REQUEST_CONTENT_TYPE_HEADER': 'Request Content-Type is incorrect',
     'USER_CREATION_FAILED': 'User creation failed. Try again later',
-    'NO_PAYLOAD': 'Incorrect JSON data format. Payload key must be included'
+    'NO_PAYLOAD': 'Incorrect JSON data format. Payload key must be included',
+    'USER_IS_LOGGED_OUT': 'Probably User is logged out'
 }
 
