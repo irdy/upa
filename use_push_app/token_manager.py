@@ -122,6 +122,18 @@ class TokenManager:
         }
 
     @staticmethod
+    def find_token_query_with_same_token_family(refresh_token: str):
+        token_family = TokenManager.get_token_family(refresh_token)
+        refresh_token_query: RefreshToken = RefreshToken.query.filter(
+            RefreshToken.token_family == token_family
+        ).one_or_none()
+
+        if refresh_token_query is None:
+            return abort(U.make_failed_response("REFRESH_TOKEN_NOT_FOUND", 401))
+
+        return refresh_token_query
+
+    @staticmethod
     def create_response(token_pair: dict, status: int):
         is_browser = TokenManager.is_browser()
         refresh_token = None

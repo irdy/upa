@@ -1,4 +1,4 @@
-from flask import request, url_for, redirect, render_template, abort, make_response, jsonify
+from flask import render_template, make_response, jsonify
 
 from database import db_session
 from use_push_app import app
@@ -19,7 +19,6 @@ def sign_in():
     return render_template('auth_page.html', message="Login")
 
 
-# SIGN_UP accessible only with INVITE_LINK + UNIQUE_CODE
 @app.route('/sign_up', methods=['GET'])
 def sign_up():
     return render_template('auth_page.html', message="Register")
@@ -28,9 +27,6 @@ def sign_up():
 @app.route('/api/auth/sign_in', methods=['POST'])
 def auth_sign_in():
     # todo sign_in attempt 20?
-    if not request.is_json:
-        return U.make_failed_response('INCORRECT_REQUEST_CONTENT_TYPE_HEADER', 400)
-
     data = U.get_request_payload()
     Validator.validate_required_keys(data, ["username", "password"])
 
@@ -53,10 +49,7 @@ def auth_sign_in():
 
 @app.route('/api/auth/sign_up', methods=['POST'])
 def auth_sign_up():
-    if not request.is_json:
-        return U.make_failed_response('INCORRECT_REQUEST_CONTENT_TYPE_HEADER', 400)
-
-    # todo one-time auth code e.g. "code: 405"
+    # todo one-time auth code e.g. "code: 405" # SIGN_UP accessible only with INVITE_LINK + UNIQUE_CODE
     data = U.get_request_payload()
     validate_credentials(data)  # check user is not exist and [username, password] are non-empty
     # todo email confirmation
@@ -64,10 +57,17 @@ def auth_sign_up():
     return create_user(data)
 
 
-@app.route('/api/auth/logout')
+@app.route('/api/auth/sign_out')
 def auth_logout():
-    # todo redirect on client-side
-    return redirect(url_for('index'))
+    refresh_token = TokenManager.get_refresh_token_from_request()
+    if refresh_token is None:
+        return U.make_failed_response("REFRESH_TOKEN_DOES_NOT_EXIST", 401)
+
+    refresh_token_query = TokenManager.find_token_query_with_same_token_family(refresh_token)
+    refresh_token_query.token = None
+
+    db_session.commit()
+    return jsonify(U.make_resp_json_body(U.success))
 
 
 @app.route('/api/auth/refresh_tokens', methods=["POST"])
@@ -76,13 +76,7 @@ def refresh_tokens():
     if refresh_token is None:
         return U.make_failed_response("REFRESH_TOKEN_DOES_NOT_EXIST", 401)
 
-    token_family = TokenManager.get_token_family(refresh_token)
-    refresh_token_query: RefreshToken = RefreshToken.query.filter(
-        RefreshToken.token_family == token_family
-    ).one_or_none()
-
-    if refresh_token_query is None:
-        return U.make_failed_response("REFRESH_TOKEN_NOT_FOUND", 401)
+    refresh_token_query = TokenManager.find_token_query_with_same_token_family(refresh_token)
 
     # compare tokens, both token verified inside - try: jwt.decode, except: 401
     if TokenManager.tokens_are_not_matched(refresh_token, refresh_token_query.token):

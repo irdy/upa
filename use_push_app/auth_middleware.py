@@ -1,9 +1,6 @@
 import json
-
-import jwt
 from flask import Request, Response
 from jwt import PyJWTError
-
 from use_push_app.exceptions import UnauthorizedException, InvalidTokenException
 from use_push_app.token_manager import TokenManager
 from use_push_app.utils import U
@@ -22,7 +19,7 @@ class AuthMiddleware:
             '/sign_up',
             '/api/auth/sign_in',
             '/api/auth/sign_up',
-            '/api/auth/sign_out',
+            # '/api/auth/sign_out',
             '/api/auth/refresh_tokens',
             '/sandbox'
         ]

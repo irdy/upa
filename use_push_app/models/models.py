@@ -16,11 +16,12 @@ class User(Base, SerializerMixin):
     id = Column(Integer, primary_key=True)
     username = Column(String(50), unique=True, nullable=False)
     password_hash = Column(String(128), nullable=False)
-
-    contacts = relationship("Contact", cascade="all, delete-orphan")
-    refresh_tokens = relationship("RefreshToken", cascade="all, delete-orphan")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    contacts = relationship("Contact", cascade="all, delete-orphan")
+    push_subscriptions = relationship("PushSubscription", cascade="all, delete-orphan")
+    refresh_tokens = relationship("RefreshToken", cascade="all, delete-orphan")
 
     @hybrid_property
     def password(self):
@@ -60,12 +61,9 @@ class RefreshToken(Base, SerializerMixin):
 class Contact(Base, SerializerMixin):
     __tablename__ = 'contacts'
 
-    serialize_rules = ('-push_subscriptions',)
-
     id = Column(Integer, primary_key=True)
     name = Column(String(50), unique=True, nullable=False)
     user_id = Column(Integer, ForeignKey('users.id'))
-    push_subscriptions = relationship("PushSubscription", cascade="all, delete-orphan")
 
     def __init__(self, name, user_id):
         self.name = name
@@ -82,12 +80,12 @@ class PushSubscription(Base, SerializerMixin):
     sub_endpoint = Column(String(200), unique=True, nullable=False)
     user_agent = Column(String(200))
 
-    contact_id = Column(Integer, ForeignKey('contacts.id'))
+    user_id = Column(Integer, ForeignKey('users.id'))
 
-    def __init__(self, sub_endpoint, user_agent=None, contact_id=None):
+    def __init__(self, sub_endpoint, user_agent, user_id):
         self.sub_endpoint = sub_endpoint
         self.user_agent = user_agent
-        self.contact_id = contact_id
+        self.user_id = user_id
 
     def __repr__(self):
         return f'Push Subscription {self.sub_endpoint}'
