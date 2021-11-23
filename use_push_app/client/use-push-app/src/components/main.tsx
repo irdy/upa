@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthStore } from "../stores/auth-store";
 import { StyleSheet, Text, View } from "react-native";
+import { Utils } from "../utils";
 
 export function Main() {
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
@@ -10,8 +11,15 @@ export function Main() {
 
   React.useEffect(() => {
     (async () => {
+      // todo remove
+      await Utils.wait(150);
       try {
         const authStore = AuthStore.getStore();
+        if (authStore.accessToken) {
+          setIsLoading(false);
+          return;
+        }
+
         const result = await authStore.refreshTokens();
 
         if (result.status === "fail") {

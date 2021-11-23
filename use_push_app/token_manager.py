@@ -145,7 +145,11 @@ class TokenManager:
         resp_body_dict = U.make_resp_json_body(U.success, token_pair)
         response = make_response(jsonify(resp_body_dict), status)
         if is_browser and refresh_token is not None:
-            response.set_cookie("rt", refresh_token, httponly=True, secure=True, samesite="Strict", path="/api/auth")
+            # DEBUG?
+            same_site_value = None if os.environ.get("DEBUG", False) else "Strict"
+            print("same_site_value is", same_site_value)
+            response.set_cookie("rt", refresh_token, httponly=True, secure=True, samesite=same_site_value,
+                                path="/api/auth")
 
         return response
 

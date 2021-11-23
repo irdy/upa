@@ -8,20 +8,21 @@ from use_push_app.token_manager import TokenManager
 from use_push_app.utils import U, Validator
 
 
-# HOME
+# SANDBOX
 @app.route('/sandbox')
+def sandbox():
+    return render_template('sandbox.html', message="")
+
+
+# HOME
+@app.route('/')
 def index():
-    return render_template('index.html', message="")
+    return app.send_static_file('index.html')
 
 
-@app.route('/sign_in', methods=['GET'])
-def sign_in():
-    return render_template('auth_page.html', message="Login")
-
-
-@app.route('/sign_up', methods=['GET'])
-def sign_up():
-    return render_template('auth_page.html', message="Register")
+@app.errorhandler(404)
+def not_found(e):
+    return app.send_static_file('index.html')
 
 
 @app.route('/api/auth/sign_in', methods=['POST'])
@@ -59,7 +60,7 @@ def auth_sign_up():
 
 
 @app.route('/api/auth/sign_out', methods=['POST'])
-def auth_logout():
+def auth_sign_out():
     refresh_token = TokenManager.get_refresh_token_from_request()
     if refresh_token is None:
         return U.make_failed_response("REFRESH_TOKEN_DOES_NOT_EXIST", 401)

@@ -15,6 +15,7 @@ class AuthMiddleware:
         request = Request(environ)
 
         public_paths = [
+            '/',
             '/sign_in',
             '/sign_up',
             '/api/auth/sign_in',
@@ -23,6 +24,10 @@ class AuthMiddleware:
             '/api/auth/refresh_tokens',
             '/sandbox'
         ]
+
+        if request.method == "GET" and not request.path.startswith('/api'):
+            return self.app(environ, start_response)
+
 
         ### CORS ###
         # if request.method == "OPTIONS":  # CORS preflight

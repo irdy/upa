@@ -1,3 +1,4 @@
+import logging
 import os
 from flask import Flask
 from flask_cors import CORS
@@ -6,7 +7,13 @@ from database import db_session, init_db
 from use_push_app.auth_middleware import AuthMiddleware
 
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
+debug = os.environ.get("DEBUG", False)
+
+if debug:
+    logging.getLogger('flask_cors').level = logging.DEBUG
+    print("App runs in debug mode. CORS Enabled")
+    CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
+
 env_config = os.environ.get('APP_SETTINGS', 'config.DevelopmentConfig')
 app.config.from_object(env_config)
 

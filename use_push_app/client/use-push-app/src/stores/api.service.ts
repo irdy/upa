@@ -16,6 +16,7 @@ const SERVER_HOST = "http://localhost:5000";
 class Api extends Store {
 
   public_paths = [
+    '/',
     '/sign_in',
     '/sign_up',
     '/api/auth/sign_in',
@@ -41,6 +42,7 @@ class Api extends Store {
       method: 'POST', // default POST
       ...requestInit,
       headers: headers,
+      credentials: "include"
     };
 
     const request = new Request(SERVER_HOST + endpoint, _requestInit);
