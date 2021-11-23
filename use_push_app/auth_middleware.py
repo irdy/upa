@@ -24,6 +24,11 @@ class AuthMiddleware:
             '/sandbox'
         ]
 
+        ### CORS ###
+        # if request.method == "OPTIONS":  # CORS preflight
+        #     res = AuthMiddleware._build_cors_preflight_response()
+        #     return res(environ, start_response)
+
         if request.path not in public_paths and not request.path.startswith('/static'):
             # check Access Token
             bearer_token = request.headers.get("Authorization")
@@ -44,3 +49,16 @@ class AuthMiddleware:
                 return res(environ, start_response)
 
         return self.app(environ, start_response)
+
+    # @staticmethod
+    # def _build_cors_preflight_response():
+    #     response = Response("allow cors", mimetype='text/plain')
+    #     response.headers.add("Access-Control-Allow-Origin", "http://localhost:3000")
+    #     response.headers.add('Access-Control-Allow-Headers', "*")
+    #     response.headers.add('Access-Control-Allow-Methods', "*")
+    #     return response
+    #
+    # @staticmethod
+    # def _corsify_actual_response(response=Response()):
+    #     response.headers.add("Access-Control-Allow-Origin", "http://localhost:3000")
+    #     return response

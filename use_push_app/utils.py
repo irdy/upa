@@ -180,9 +180,11 @@ class Validator:
         for key in required_keys:
             if key not in data:
                 validation_errors[key] = f"{key} is required"
+            if not data[key]:
+                validation_errors[key] = f"{key} can't be an empty"
 
         if validation_errors:
-            response = U.make_failed_response("", 400, validation_errors)
+            response = U.make_failed_response("VALIDATION_ERROR", 400, validation_errors)
             return abort(response)
 
         return None
@@ -198,7 +200,7 @@ class Validator:
             is_not_allowed_for_update_keys_dict[key] = f"{key} can't be patched"
 
         if is_not_allowed_for_update_keys_dict:
-            response = U.make_failed_response("", 400, is_not_allowed_for_update_keys_dict)
+            response = U.make_failed_response("VALIDATION_ERROR", 400, is_not_allowed_for_update_keys_dict)
             return abort(response)
 
         return None

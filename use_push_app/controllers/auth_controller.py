@@ -51,6 +51,7 @@ def auth_sign_in():
 def auth_sign_up():
     # todo one-time auth code e.g. "code: 405" # SIGN_UP accessible only with INVITE_LINK + UNIQUE_CODE
     data = U.get_request_payload()
+    Validator.validate_required_keys(data, ["username", "password"])
     validate_credentials(data)  # check user is not exist and [username, password] are non-empty
     # todo email confirmation
 

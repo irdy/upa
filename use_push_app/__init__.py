@@ -1,9 +1,12 @@
 import os
 from flask import Flask
+from flask_cors import CORS
+
 from database import db_session, init_db
 from use_push_app.auth_middleware import AuthMiddleware
 
 app = Flask(__name__)
+CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
 env_config = os.environ.get('APP_SETTINGS', 'config.DevelopmentConfig')
 app.config.from_object(env_config)
 

@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
         const formData = new FormData(e.target);
-        const payload = Object.fromEntries(formData)
+        const payload = Object.fromEntries(formData);
 
         const data = await Utils.makeJSONRequest(`/api/auth${pathname}`, {
             method: 'POST',
