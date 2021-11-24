@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "heroku-postbuild": "cd use_push_app/client/use-push-app && npm i && npm build"
+    "heroku-postbuild": "cd use_push_app/client/use-push-app && npm i && npm run build"
   },
   "keywords": [],
   "author": "",
