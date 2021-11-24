@@ -11,7 +11,15 @@ export interface ApiResponse<T> {
 class RequestInitClass implements RequestInit {
 }
 
-const SERVER_HOST = "http://localhost:5000";
+function getServerHost() {
+  if (process.env.NODE_ENV === "production") {
+    return "https://use-push.herokuapp.com/"
+  }
+
+  return process.env.REACT_APP_HOST;
+}
+
+const SERVER_HOST = getServerHost();
 
 class Api extends Store {
 
