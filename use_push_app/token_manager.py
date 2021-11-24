@@ -6,6 +6,7 @@ from flask import request, make_response, jsonify, abort
 from jwt import PyJWTError
 
 from database import db_session
+from use_push_app.messages import messages
 from use_push_app.exceptions import InvalidTokenException
 from use_push_app.models.models import RefreshToken, User
 from use_push_app.utils import U
@@ -87,9 +88,7 @@ class TokenManager:
     @staticmethod
     def get_token_family(refresh_token: str) -> str:
         token_family = TokenManager.get_data_from_token_body(refresh_token, "token_family")
-        if not token_family:
-            response = U.make_failed_response('NO_TOKEN_FAMILY_INTO_TOKEN', 400)
-            abort(response)
+        TokenManager.check_refresh_token_family(token_family)
 
         return token_family
 
@@ -101,6 +100,8 @@ class TokenManager:
 
     @staticmethod
     def generate_token_pair(token_family: UUID, user_id: int) -> dict:
+        TokenManager.check_refresh_token_family(token_family)
+
         access_token_body = {
             "user_id": user_id,
             "iat": datetime.now(tz=timezone.utc),
@@ -162,6 +163,9 @@ class TokenManager:
         """
         refresh_token = RefreshToken()
         user.refresh_tokens.append(refresh_token)
+
+        db_session.commit()
+
         return refresh_token
 
     @staticmethod
@@ -190,17 +194,25 @@ class TokenManager:
         return refresh_token_query
 
     @staticmethod
-    def cross_link_refresh_token(refresh_token: RefreshToken, user: User):
+    def cross_link_refresh_token(refresh_token_query: RefreshToken, user: User):
         """
         QUERY = RefreshToken Database Query
         1) Generate new Token Pair: Refresh Token contains QUERY's token_family uuid, Access Token contains user_id
         2) Update QUERY with generated refresh JWT-token (step 1)
-        :param refresh_token: Refresh Token
+        :param refresh_token_query: Refresh Token
         :param user: User
         :return: token pair
         """
-        token_pair = TokenManager.generate_token_pair(refresh_token.token_family, user.id)
+        token_pair = TokenManager.generate_token_pair(refresh_token_query.token_family, user.id)
         # update RefreshToken model with generated JWT-token
-        refresh_token.token = token_pair["refresh_token"]
+        refresh_token_query.token = token_pair["refresh_token"]
         db_session.commit()
         return token_pair
+
+    @staticmethod
+    def check_refresh_token_family(token_family: UUID):
+        if not token_family:
+            # Token family must be included into Refresh Token! Token family generated at Refresh Token creation
+            resp_body_dict = U.make_resp_json_body(U.error, None, messages["NO_TOKEN_FAMILY_INTO_TOKEN"])
+            abort(make_response(jsonify(resp_body_dict), 500))
+
