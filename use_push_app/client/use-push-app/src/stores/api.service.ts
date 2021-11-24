@@ -13,7 +13,7 @@ class RequestInitClass implements RequestInit {
 
 function getServerHost() {
   if (process.env.NODE_ENV === "production") {
-    return "https://use-push.herokuapp.com/"
+    return "https://use-push.herokuapp.com"
   }
 
   return process.env.REACT_APP_HOST;
