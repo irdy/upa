@@ -13,6 +13,8 @@ if debug:
     logging.getLogger('flask_cors').level = logging.DEBUG
     print("App runs in debug mode. CORS Enabled")
     CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
+else:
+    print("App runs in production mode. CORS Disabled")
 
 env_config = os.environ.get('APP_SETTINGS', 'config.DevelopmentConfig')
 app.config.from_object(env_config)
