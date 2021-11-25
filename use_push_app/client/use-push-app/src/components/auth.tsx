@@ -2,8 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { AppAuthForm, AppAuthFormValues } from "./ui/forms/app-auth-form";
 import { AuthStore } from "../stores/auth-store";
-import { Text, View } from "react-native";
-import { styles } from "../styles/common-styles";
+import { Text, View, StyleSheet } from "react-native";
 
 interface AuthProps {
   authType: "signIn" | "signUp"
@@ -31,8 +30,15 @@ export function Auth({ authType }: AuthProps) {
 
   return (
     <View style={styles.horCenter}>
-      <Text>Please, {authType === "signUp" ? "Sign Up" : "Sign In"}</Text>
+      <Text style={styles.bordered}>Please, {authType === "signUp" ? "Sign Up" : "Sign In"}</Text>
       <AppAuthForm onSubmit={onAuthFormSubmit}/>
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  bordered: {
+    borderWidth: 2,
+    borderColor: '#0f0' // green
+  }
+});
