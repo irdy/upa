@@ -24,13 +24,18 @@ class AuthMiddleware:
             '/sandbox'
         ]
 
-        if request.method == "GET" and not request.path.startswith('/api'):
+        if request.method == "GET":
+            if request.path.startswith('/api'):
+                is_api_request = 'X_UUID' in request.headers
+                if not is_api_request:
+                    return self.app(environ, start_response)
+
             return self.app(environ, start_response)
 
         if request.method == "OPTIONS":
             return self.app(environ, start_response)
 
-        if request.path not in public_paths and not request.path.startswith('/static'):
+        if request.path not in public_paths:
             # check Access Token
             bearer_token = request.headers.get("Authorization")
             try:
