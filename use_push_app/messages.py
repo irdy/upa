@@ -14,6 +14,7 @@ messages = {
     'REFRESH_TOKEN_DOES_NOT_EXIST': 'Refresh Token does not exist in Request',
     'REFRESH_TOKEN_NOT_FOUND': 'Refresh Token with current token family is not found',
     'TOKENS_ARE_NOT_MATCHED': 'Client token is not matched to Server token',
+    'NOT_IMPLEMENTED': 'NOT_IMPLEMENTED',
     # 400
     'NO_X-UUID_HEADER': 'X-UUID Header must be included into Request',
     'NO_AUTHORIZATION_HEADER': 'Authorization Header must be included into Request for accessing that resource',

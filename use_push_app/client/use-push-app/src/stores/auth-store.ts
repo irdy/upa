@@ -28,5 +28,9 @@ export class AuthStore extends Store {
       throw new Error("No Access Token!");
     }
   }
+
+  signOut() {
+    return api.call('/api/auth/sign_out');
+  }
 }
 

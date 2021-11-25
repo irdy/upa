@@ -50,13 +50,15 @@ def auth_sign_in():
 
 @app.route('/api/auth/sign_up', methods=['POST'])
 def auth_sign_up():
-    # todo one-time auth code e.g. "code: 405" # SIGN_UP accessible only with INVITE_LINK + UNIQUE_CODE
-    data = U.get_request_payload()
-    Validator.validate_required_keys(data, ["username", "password"])
-    validate_credentials(data)  # check user is not exist and [username, password] are non-empty
-    # todo email confirmation
+    return U.make_failed_response("NOT_IMPLEMENTED", 403)
 
-    return create_user(data)
+    # todo one-time auth code e.g. "code: 405" # SIGN_UP accessible only with INVITE_LINK + UNIQUE_CODE
+    # data = U.get_request_payload()
+    # Validator.validate_required_keys(data, ["username", "password"])
+    # validate_credentials(data)  # check user is not exist and [username, password] are non-empty
+    # # todo email confirmation
+    #
+    # return create_user(data)
 
 
 @app.route('/api/auth/sign_out', methods=['POST'])

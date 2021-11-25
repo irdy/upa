@@ -43,7 +43,7 @@ class Api extends Store {
     headers.append('X-UUID', '');
 
     if (!this.public_paths.includes(endpoint)) {
-      headers.append('Authorization', `Bearer ${AuthStore.getStore().accessToken}`);
+      headers.append('Authorization', AuthStore.getStore().accessToken ?? "");
     }
 
     const _requestInit: RequestInit = {

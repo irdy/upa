@@ -1,18 +1,15 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthStore } from "../stores/auth-store";
-import { StyleSheet, Text, View } from "react-native";
-import { Utils } from "../utils";
+import { Button, StyleSheet, Text, View } from "react-native";
 
 export function Main() {
-  const [isLoading, setIsLoading] = React.useState<boolean>(true);
+  const [ isLoading, setIsLoading ] = React.useState<boolean>(true);
 
   const navigate = useNavigate();
 
   React.useEffect(() => {
     (async () => {
-      // todo remove
-      await Utils.wait(150);
       try {
         const authStore = AuthStore.getStore();
         if (authStore.accessToken) {
@@ -34,6 +31,14 @@ export function Main() {
     })();
   }, [navigate]);
 
+  const onPress = React.useCallback(async () => {
+    const authStore = AuthStore.getStore();
+    const result = await authStore.signOut();
+    if (result.status === "success") {
+      navigate("/sign_in")
+    }
+  }, [navigate]);
+
   if (isLoading) {
     // todo FullScreenSize Loader
     return (
@@ -43,9 +48,11 @@ export function Main() {
     )
   }
 
+
   return (
     <View style={styles.root}>
       <Text>Main Page</Text>
+      <Button onPress={onPress} title={"Sign Out"}/>
     </View>
   )
 }

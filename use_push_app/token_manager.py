@@ -146,11 +146,16 @@ class TokenManager:
         resp_body_dict = U.make_resp_json_body(U.success, token_pair)
         response = make_response(jsonify(resp_body_dict), status)
         if is_browser and refresh_token is not None:
-            # DEBUG?
             same_site_value = None if os.environ.get("DEBUG", False) else "Strict"
-            print("same_site_value is", same_site_value)
-            response.set_cookie("rt", refresh_token, httponly=True, secure=True, samesite=same_site_value,
-                                path="/api/auth")
+            expire_date = datetime.now(tz=timezone.utc) + timedelta(minutes=60)
+            response.set_cookie(
+                "rt", refresh_token,
+                expires=expire_date,
+                httponly=True,
+                secure=True,
+                samesite=same_site_value,
+                path="/api/auth"
+            )
 
         return response
 

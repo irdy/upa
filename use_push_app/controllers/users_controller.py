@@ -16,6 +16,7 @@ no more then 2 levels of nesting
 '''
 
 
+# todo restrict (admin only)
 @app.route('/api/users', methods=['POST'])
 def _create_user():
     data = U.get_request_payload()
@@ -32,8 +33,6 @@ def create_user(data: dict):
     validate_credentials(data)
 
     user = User(**data)
-    # user.set_password(data["password"])
-
     refresh_token = TokenManager.create_new_refresh_token(user)
 
     db_session.add(user)
@@ -68,6 +67,7 @@ def update_delete_user(user_id):
     if request.method == 'PATCH':
         return patch_user(user_id)
     elif request.method == 'DELETE':
+        # todo restrict (admin only)
         return QueryUtils.delete(User, user_id, 'User')
 
 
