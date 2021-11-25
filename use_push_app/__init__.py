@@ -6,7 +6,8 @@ from flask_cors import CORS
 from database import db_session, init_db
 from use_push_app.auth_middleware import AuthMiddleware
 
-app = Flask(__name__)
+
+app = Flask(__name__, static_folder="./client/use-push-app/build", static_url_path='')
 debug = os.environ.get("DEBUG", False)
 
 if debug:

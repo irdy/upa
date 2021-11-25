@@ -15,13 +15,9 @@ class AuthMiddleware:
         request = Request(environ)
 
         public_paths = [
-            '/',
-            '/sign_in',
-            '/sign_up',
             '/api/auth/sign_in',
             '/api/auth/sign_up',
             '/api/auth/refresh_tokens',
-            '/sandbox'
         ]
 
         if request.method == "GET":
@@ -48,6 +44,7 @@ class AuthMiddleware:
                 return self.app(environ, start_response)
 
             except (UnauthorizedException, InvalidTokenException, PyJWTError) as e:
+                print(e)
                 resp_body_dict = U.make_resp_json_body(U.fail, None, "Unauthorized")
                 json_data = json.dumps(resp_body_dict)
 

@@ -24,6 +24,7 @@ messages = {
     'USER_CREATION_FAILED': 'User creation failed. Try again later',
     'NO_PAYLOAD': 'Incorrect JSON data format. Payload key must be included',
     'USER_IS_LOGGED_OUT': 'Probably User is logged out',
-    'VALIDATION_ERROR': 'Validation Error'
+    'VALIDATION_ERROR': 'Validation Error',
+    'INVALID_TOKEN': 'Invalid token',
 }
 

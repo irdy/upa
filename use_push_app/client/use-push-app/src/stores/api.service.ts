@@ -28,13 +28,9 @@ const SERVER_HOST = getServerHost();
 class Api extends Store {
 
   public_paths = [
-    '/',
-    '/sign_in',
-    '/sign_up',
     '/api/auth/sign_in',
     '/api/auth/sign_up',
     '/api/auth/refresh_tokens',
-    '/sandbox'
   ]
 
   async call<T>(endpoint: string, requestInit: RequestInit = Object.create(RequestInitClass)): Promise<ApiResponse<T>> {

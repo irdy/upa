@@ -2,7 +2,6 @@
   "name": "use-push-app",
   "version": "0.1.0",
   "private": true,
-  "homepage": "./static",
   "dependencies": {
     "@craco/craco": "^6.4.0",
     "@testing-library/jest-dom": "^5.15.0",
@@ -25,8 +24,8 @@
   },
   "scripts": {
     "start": "REACT_APP_HOST='http://localhost:5000' craco start",
-    "build": "BUILD_PATH='../../static' craco build",
-    "build:dev": "BUILD_PATH='../../static' REACT_APP_HOST='http://localhost:5000' craco build",
+    "build": "craco build",
+    "build:dev": "REACT_APP_HOST='http://localhost:5000' craco build",
     "test": "craco test",
     "eject": "react-scripts eject"
   },

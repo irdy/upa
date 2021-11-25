@@ -35,21 +35,18 @@ class TokenManager:
         return token
 
     @staticmethod
-    def make_unauthorized_resp():
-        return U.make_failed_response('NO_AUTHORIZATION_HEADER', 401)
-
-    # FOR MOBILE
-    @staticmethod
     def extract_bearer_token_from_req_header():
+        """
+            FOR MOBILE
+        """
         if 'Authorization' not in request.headers:
-            return abort(TokenManager.make_unauthorized_resp())
+            return abort(U.make_failed_response('NO_AUTHORIZATION_HEADER', 401))
 
         bearer_token = request.headers.get('Authorization')  # access_token or refresh_token
         try:
             token = TokenManager.parse_bearer_token(bearer_token)
         except InvalidTokenException:
-            # todo invalid <-> unauth
-            return abort(TokenManager.make_unauthorized_resp())
+            return abort(U.make_failed_response('INVALID_TOKEN', 401))
 
         return token
 
@@ -202,7 +199,9 @@ class TokenManager:
     def cross_link_refresh_token(refresh_token_query: RefreshToken, user: User):
         """
         QUERY = RefreshToken Database Query
-        1) Generate new Token Pair: Refresh Token contains QUERY's token_family uuid, Access Token contains user_id
+        1) Generate new Token Pair:
+            - Refresh Token contains QUERY's token_family uuid,
+            - Access Token contains user_id
         2) Update QUERY with generated refresh JWT-token (step 1)
         :param refresh_token_query: Refresh Token
         :param user: User
