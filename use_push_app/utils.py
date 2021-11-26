@@ -163,7 +163,7 @@ class Validator:
         return None
 
     @staticmethod
-    def validate_no_exists(model: Any, model_name: str, unique_key: str, value: str):
+    def validate_no_exists(model: Any, model_name: str, unique_key: str, value: str or uuid.UUID):
         query = model.query.filter(getattr(model, unique_key) == value).one_or_none()
 
         _dict = dict()

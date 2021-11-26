@@ -48,35 +48,8 @@ def auth_sign_in():
 def auth_sign_up():
     # SIGN_UP accessible only with `Invitation link`
     data = U.get_request_payload()
-
     Validator.validate_required_keys(data, ["link_uuid"])
-    link_uuid = Validator.is_valid_uuid(data['link_uuid'])
-    invitation_link = Validator.validate_no_exists(InvitationLink, 'InvitationLink', 'link_uuid', link_uuid)
-    user_referrer: User = Validator.validate_no_exists(User, 'User', 'id', invitation_link.user_id)
-
-    """
-    If invitation link exist + valid and user-referrer exist do:
-        1) create new User with invited_by={user_id}
-        2) create new Contact for new User with contact_user_id={user_id}
-        
-        3) create new Contact for User, which invite the new User, with ref for new User
-    """
-    # 1)
-    invited_user = User(username=data["username"], password=data["password"], user_id=user_referrer.id)
-    # 2)
-    contact_of_invited_user = Contact(user_referrer.username, user_referrer.id)
-    invited_user.contacts.append(contact_of_invited_user)
-    db_session.add(invited_user)
-    # create invited_user.id
-    db_session.commit()
-    # 3)
-    contact_of_user_referrer = Contact(invited_user.username, invited_user.id)
-    user_referrer.contacts.append(contact_of_user_referrer)
-    db_session.commit()
-
-    return U.make_failed_response("NOT_IMPLEMENTED", 403)
-    # todo email confirmation
-    # return create_user(data)
+    return create_user(data=data, link_uuid=data["link_uuid"])
 
 
 @app.route('/api/auth/invitation_link', methods=['POST'])

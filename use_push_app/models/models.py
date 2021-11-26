@@ -19,7 +19,7 @@ class User(Base, SerializerMixin):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-    invited_by = Column(Integer, unique=True)
+    invited_by = Column(Integer)
 
     contacts = relationship("Contact", cascade="all, delete-orphan")
     push_subscriptions = relationship("PushSubscription", cascade="all, delete-orphan")
@@ -80,8 +80,8 @@ class Contact(Base, SerializerMixin):
     __tablename__ = 'contacts'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(50), unique=True, nullable=False)
-    contact_user_id = Column(Integer, unique=True, nullable=False)
+    name = Column(String(50), nullable=False)
+    contact_user_id = Column(Integer, nullable=False)
     user_id = Column(Integer, ForeignKey('users.id'))
 
     def __init__(self, name, contact_user_id):
