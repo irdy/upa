@@ -1,7 +1,8 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthStore } from "../stores/auth-store";
-import { Button, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
+import { AppButton } from "./ui/buttons/AppButton";
 
 export function Main() {
   const [ isLoading, setIsLoading ] = React.useState<boolean>(true);
@@ -31,13 +32,24 @@ export function Main() {
     })();
   }, [navigate]);
 
-  const onPress = React.useCallback(async () => {
+  const signOut = React.useCallback(async () => {
     const authStore = AuthStore.getStore();
     const result = await authStore.signOut();
     if (result.status === "success") {
       navigate("/sign_in")
     }
   }, [navigate]);
+
+  const generateInvitationLink = React.useCallback(async () => {
+    const authStore = AuthStore.getStore();
+    const result = await authStore.generateInvitationLink();
+    const { data } = result;
+    if (data?.link_uuid) {
+      console.log("link_uuid", data.link_uuid)
+    } else {
+      console.log("link_uuid", data?.link_uuid)
+    }
+  }, []);
 
   if (isLoading) {
     // todo FullScreenSize Loader
@@ -52,7 +64,8 @@ export function Main() {
   return (
     <View style={styles.root}>
       <Text>Main Page</Text>
-      <Button onPress={onPress} title={"Sign Out"}/>
+      <AppButton onPress={signOut} title={"Sign Out"}/>
+      <AppButton onPress={generateInvitationLink} title={"Generate Invitation Link"}/>
     </View>
   )
 }

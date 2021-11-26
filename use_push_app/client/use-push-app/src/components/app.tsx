@@ -13,7 +13,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Main/>}/>
           <Route path="/sign_in" element={<Auth authType={"signIn"} />}/>
-          <Route path="/sign_up" element={<Auth authType={"signUp"} />}/>
+          <Route path="/sign_up/:link_uuid" element={<Auth authType={"signUp"} />}/>
           <Route
             path="*"
             element={

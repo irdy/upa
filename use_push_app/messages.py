@@ -26,5 +26,9 @@ messages = {
     'USER_IS_LOGGED_OUT': 'Probably User is logged out',
     'VALIDATION_ERROR': 'Validation Error',
     'INVALID_TOKEN': 'Invalid token',
+    'UUID_IS_NOT_VALID': 'Badly formed hexadecimal uuid string',
+    # 500
+    'TOKEN_IS_NOT_BIND_TO_USER': "Can't find User associated with current token",
+    'NO_USER_ID_INTO_ACCESS_TOKEN': "Access Token Body does not contain user_id"
 }
 

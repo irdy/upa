@@ -6,8 +6,16 @@ interface AuthResponseData {
   refresh_token?: string; // mobile only
 }
 
+interface InvitationLink {
+  link_uuid: string;
+}
+
 export class AuthStore extends Store {
   accessToken: string | null = null;
+
+  isAuthenticated() {
+    return Boolean(this.accessToken)
+  }
 
   refreshTokens() {
     return api.call<AuthResponseData>('/api/auth/refresh_tokens');
@@ -27,6 +35,10 @@ export class AuthStore extends Store {
     } else {
       throw new Error("No Access Token!");
     }
+  }
+
+  generateInvitationLink() {
+    return api.call<InvitationLink>('/api/auth/invitation_link');
   }
 
   signOut() {

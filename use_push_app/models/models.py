@@ -19,9 +19,12 @@ class User(Base, SerializerMixin):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
+    invited_by = Column(Integer, unique=True)
+
     contacts = relationship("Contact", cascade="all, delete-orphan")
     push_subscriptions = relationship("PushSubscription", cascade="all, delete-orphan")
     refresh_tokens = relationship("RefreshToken", cascade="all, delete-orphan")
+    invitation_links = relationship("InvitationLink", cascade="all, delete-orphan")
 
     @hybrid_property
     def password(self):
@@ -32,15 +35,30 @@ class User(Base, SerializerMixin):
         pw_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
         self.password_hash = pw_hash.decode('utf-8')
 
-    def __init__(self, username, password):
+    def __init__(self, username, password, user_id=None):
         self.username = username
         self.password = password
+        self.invited_by = user_id
 
     def verify_password(self, password: str) -> bool:
         return bcrypt.checkpw(password.encode('utf-8'), self.password.encode('utf-8'))
 
     def __repr__(self):
         return f'<User {self.username!r}>'
+
+
+class InvitationLink(Base, SerializerMixin):
+    __tablename__ = 'invitation_links'
+
+    id = Column(Integer, primary_key=True)
+    link_uuid = Column(UUID(as_uuid=True), unique=True, default=uuid.uuid4)
+    user_id = Column(Integer, ForeignKey('users.id'))
+
+    def __init__(self, user_id: str):
+        self.user_id = user_id
+
+    def __repr__(self):
+        return f'<Contact {self.link_uuid!r}>'
 
 
 class RefreshToken(Base, SerializerMixin):
@@ -63,11 +81,12 @@ class Contact(Base, SerializerMixin):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(50), unique=True, nullable=False)
+    contact_user_id = Column(Integer, unique=True, nullable=False)
     user_id = Column(Integer, ForeignKey('users.id'))
 
-    def __init__(self, name, user_id):
+    def __init__(self, name, contact_user_id):
         self.name = name
-        self.user_id = user_id
+        self.contact_user_id = contact_user_id
 
     def __repr__(self):
         return f'<Contact {self.name!r}>'
@@ -82,10 +101,9 @@ class PushSubscription(Base, SerializerMixin):
 
     user_id = Column(Integer, ForeignKey('users.id'))
 
-    def __init__(self, sub_endpoint, user_agent, user_id):
+    def __init__(self, sub_endpoint, user_agent):
         self.sub_endpoint = sub_endpoint
         self.user_agent = user_agent
-        self.user_id = user_id
 
     def __repr__(self):
         return f'Push Subscription {self.sub_endpoint}'

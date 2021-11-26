@@ -23,14 +23,10 @@ def _create_user():
     return create_user(data)
 
 
-def validate_credentials(data: dict):
+def create_user(data: dict):
     # todo more validations: string.length, email-mask? shared with client validation
     Validator.validate_required_keys(data, ["username", "password"])
     Validator.validate_unique(User, 'User', 'username', data['username'])
-
-
-def create_user(data: dict):
-    validate_credentials(data)
 
     user = User(**data)
     refresh_token = TokenManager.create_new_refresh_token(user)

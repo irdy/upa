@@ -1,17 +1,13 @@
-from flask import render_template, make_response, jsonify
+import uuid
+
+from flask import make_response, jsonify
 
 from database import db_session
 from use_push_app import app
-from use_push_app.controllers.users_controller import create_user, validate_credentials
-from use_push_app.models.models import User, RefreshToken
+from use_push_app.controllers.users_controller import create_user
+from use_push_app.models.models import User, RefreshToken, InvitationLink, Contact
 from use_push_app.token_manager import TokenManager
 from use_push_app.utils import U, Validator
-
-
-# SANDBOX
-@app.route('/sandbox')
-def sandbox():
-    return render_template('sandbox.html', message="")
 
 
 # HOME
@@ -50,15 +46,47 @@ def auth_sign_in():
 
 @app.route('/api/auth/sign_up', methods=['POST'])
 def auth_sign_up():
-    return U.make_failed_response("NOT_IMPLEMENTED", 403)
+    # SIGN_UP accessible only with `Invitation link`
+    data = U.get_request_payload()
 
-    # todo one-time auth code e.g. "code: 405" # SIGN_UP accessible only with INVITE_LINK + UNIQUE_CODE
-    # data = U.get_request_payload()
-    # Validator.validate_required_keys(data, ["username", "password"])
-    # validate_credentials(data)  # check user is not exist and [username, password] are non-empty
-    # # todo email confirmation
-    #
+    Validator.validate_required_keys(data, ["link_uuid"])
+    link_uuid = Validator.is_valid_uuid(data['link_uuid'])
+    invitation_link = Validator.validate_no_exists(InvitationLink, 'InvitationLink', 'link_uuid', link_uuid)
+    user_referrer: User = Validator.validate_no_exists(User, 'User', 'id', invitation_link.user_id)
+
+    """
+    If invitation link exist + valid and user-referrer exist do:
+        1) create new User with invited_by={user_id}
+        2) create new Contact for new User with contact_user_id={user_id}
+        
+        3) create new Contact for User, which invite the new User, with ref for new User
+    """
+    # 1)
+    invited_user = User(username=data["username"], password=data["password"], user_id=user_referrer.id)
+    # 2)
+    contact_of_invited_user = Contact(user_referrer.username, user_referrer.id)
+    invited_user.contacts.append(contact_of_invited_user)
+    db_session.add(invited_user)
+    # create invited_user.id
+    db_session.commit()
+    # 3)
+    contact_of_user_referrer = Contact(invited_user.username, invited_user.id)
+    user_referrer.contacts.append(contact_of_user_referrer)
+    db_session.commit()
+
+    return U.make_failed_response("NOT_IMPLEMENTED", 403)
+    # todo email confirmation
     # return create_user(data)
+
+
+@app.route('/api/auth/invitation_link', methods=['POST'])
+def auth_generate_invitation_link():
+    user_id = TokenManager.get_user_id()
+    invitation_link = InvitationLink(user_id)
+    db_session.add(invitation_link)
+    db_session.commit()
+    resp_body_dict = U.make_resp_json_body(U.success, dict(link_uuid=invitation_link.link_uuid))
+    return make_response(resp_body_dict)
 
 
 @app.route('/api/auth/sign_out', methods=['POST'])
@@ -94,8 +122,7 @@ def refresh_tokens():
     user = User.query.filter(User.id == refresh_token_query.user_id).one_or_none()
     if user is None:
         # User must exist! coz refresh_token can't exist without associated user (db relation)
-        resp_body_dict = U.make_resp_json_body(U.error, None, "Can't find User associated with current token")
-        return make_response(jsonify(resp_body_dict), 500)
+        return U.make_error_response("TOKEN_IS_NOT_BIND_TO_USER")
 
     token_pair = TokenManager.cross_link_refresh_token(refresh_token_query, user)
     return TokenManager.create_response(token_pair, 200)

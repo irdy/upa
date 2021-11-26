@@ -36,9 +36,6 @@ class TokenManager:
 
     @staticmethod
     def extract_bearer_token_from_req_header():
-        """
-            FOR MOBILE
-        """
         if 'Authorization' not in request.headers:
             return abort(U.make_failed_response('NO_AUTHORIZATION_HEADER', 401))
 
@@ -49,6 +46,15 @@ class TokenManager:
             return abort(U.make_failed_response('INVALID_TOKEN', 401))
 
         return token
+
+    @staticmethod
+    def get_user_id() -> str:
+        access_token = TokenManager.extract_bearer_token_from_req_header()
+        user_id = TokenManager.get_data_from_token_body(access_token, "user_id")
+        if not user_id:
+            return abort(U.make_failed_response('NO_USER_ID_INTO_ACCESS_TOKEN', 500))
+
+        return user_id
 
     @staticmethod
     def is_browser() -> bool:
@@ -217,6 +223,5 @@ class TokenManager:
     def check_refresh_token_family(token_family: UUID):
         if not token_family:
             # Token family must be included into Refresh Token! Token family generated at Refresh Token creation
-            resp_body_dict = U.make_resp_json_body(U.error, None, messages["NO_TOKEN_FAMILY_INTO_TOKEN"])
-            abort(make_response(jsonify(resp_body_dict), 500))
+            abort(U.make_error_response("NO_TOKEN_FAMILY_INTO_TOKEN"))
 

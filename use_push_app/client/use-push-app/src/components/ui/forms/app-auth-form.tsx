@@ -1,6 +1,7 @@
 import { Formik } from "formik";
-import { Button, TextInput, View, Text, StyleSheet } from "react-native";
+import { TextInput, View, Text, StyleSheet } from "react-native";
 import React from "react";
+import { AppButton } from "../buttons/AppButton";
 
 export interface AppAuthFormValues {
   username: string,
@@ -41,7 +42,7 @@ function _AppAuthForm({ onSubmit }: AppAuthFormProps) {
             value={values.password}
           >
           </TextInput>
-          <Button onPress={handleSubmit} title="Submit"/>
+          <AppButton onPress={handleSubmit} title="Submit"/>
         </View>
       )}
     </Formik>

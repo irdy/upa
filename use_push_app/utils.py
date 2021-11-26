@@ -12,6 +12,7 @@ example:
     message: null
 }
 """
+import uuid
 from functools import reduce
 from typing import Any, List, Tuple
 
@@ -49,6 +50,12 @@ class U:
     def make_failed_response(message_type: str, status_code: int, data=None):
         message = messages[message_type] if message_type else None
         resp_body_dict = U.make_resp_json_body(U.fail, data, message)
+        return make_response(jsonify(resp_body_dict), status_code)
+
+    @staticmethod
+    def make_error_response(message_type: str, status_code=500, data=None):
+        message = messages[message_type] if message_type else None
+        resp_body_dict = U.make_resp_json_body(U.error, data, message)
         return make_response(jsonify(resp_body_dict), status_code)
 
     @staticmethod
@@ -159,14 +166,14 @@ class Validator:
     def validate_no_exists(model: Any, model_name: str, unique_key: str, value: str):
         query = model.query.filter(getattr(model, unique_key) == value).one_or_none()
 
-        user_dict = dict()
-        user_dict[unique_key] = value
+        _dict = dict()
+        _dict[unique_key] = value
 
         if query is None:
             resp_body_dict = U.make_resp_json_body(
                 U.fail,
                 None,
-                messages['NO_EXISTS'](model_name, unique_key, user_dict)
+                messages['NO_EXISTS'](model_name, unique_key, _dict)
             )
 
             return abort(make_response(jsonify(resp_body_dict), 404))
@@ -180,7 +187,7 @@ class Validator:
         for key in required_keys:
             if key not in data:
                 validation_errors[key] = f"{key} is required"
-            if not data[key]:
+            elif not data.get(key):
                 validation_errors[key] = f"{key} can't be an empty"
 
         if validation_errors:
@@ -204,3 +211,11 @@ class Validator:
             return abort(response)
 
         return None
+
+    @staticmethod
+    def is_valid_uuid(val):
+        try:
+            return uuid.UUID(str(val))
+        except ValueError:
+            response = U.make_failed_response("UUID_IS_NOT_VALID", 400)
+            return abort(response)
