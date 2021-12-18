@@ -1,10 +1,7 @@
 import {
-  asyncScheduler,
-  map, observeOn,
-  scan,
   Subject,
 } from "rxjs";
-import { Store } from "./store";
+import { getStore } from "./store";
 
 let counter = 0; // Date?
 
@@ -18,18 +15,21 @@ export interface IErrorData {
   data?: any
 }
 
-export class ErrorStore extends Store {
-  errorsSubject = new Subject<IErrorData>()
-  errorsObservable = this.errorsSubject
-    .pipe(
-      // get only last 3 errors
-      // scan((acc: string[], value: string[]) => acc.concat(value).slice(-3), []),
-      map((err: IErrorData) => {
-        return {
-          id: counter++,
-          error: err
-        }
-      }),
-      observeOn(asyncScheduler)
-    )
+function makeErrorConverter() {
+  return function(err: IErrorData): IError {
+    return {
+      id: counter++,
+      error: err
+    }
+  }
 }
+
+export const errorConverter = makeErrorConverter();
+
+const Store = getStore();
+
+export class ErrorStore extends Store {
+  // todo?
+  errorsSubject = new Subject<IError>();
+}
+

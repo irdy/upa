@@ -1,0 +1,1 @@
+export type SubjectNames = "contacts" | "user" | "tokenPair";

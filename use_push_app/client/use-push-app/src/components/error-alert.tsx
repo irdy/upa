@@ -1,31 +1,36 @@
 import React from "react";
-import { ErrorStore, IError } from "../stores/error.store";
+import { errorConverter, ErrorStore, IError } from "../stores/error.store";
 import { useObservable } from "../hooks/useObservable";
 import { View, Text } from "react-native";
 import { Utils } from "../utils";
+import { AppButton } from "./ui/buttons/app-button";
 
-const HIDE_ERROR_MESSAGE_AFTER = 5000;
+const HIDE_ERROR_MESSAGE_TIMEOUT = 5000;
 
 export function ErrorAlert() {
-  const { errorsObservable } = ErrorStore.getStore();
-  const [ currentError ] = useObservable<IError>(errorsObservable);
+  const errorStore = ErrorStore.getInstance();
+  const [ currentError ] = useObservable(errorStore.errorsSubject);
 
   const [ errors, setErrors ] = React.useState<IError[]>();
 
-  // let counter = React.useRef(0);
+  const _onPress = () => {
+    const error = errorConverter(
+      {
+        message: null,
+        data: {
+          login: "login required",
+          password: "password required"
+        }
+      }
+    );
 
-  // const _onPress = () => {
-  //   counter.current += 2;
-  //   errorsSubject.next({
-  //     message: counter.current.toString(),
-  //     data: {
-  //       login: "login required",
-  //       password: "password required"
-  //     }
-  //   });
-  // }
+    error.error.message = error.id.toString();
+    errorStore.errorsSubject.next(error);
+  }
 
+  // todo replace with Observable
   React.useEffect(() => {
+    // only last 3 errors
     setErrors(prevErrors => {
       return (prevErrors ?? []).concat(currentError ?? []).slice(-3)
     });
@@ -40,7 +45,7 @@ export function ErrorAlert() {
     const lastError = errors[errors.length - 1]; // currentError in fact
 
     (async () => {
-      await Utils.wait(HIDE_ERROR_MESSAGE_AFTER);
+      await Utils.wait(HIDE_ERROR_MESSAGE_TIMEOUT);
       setErrors(prevErrors => {
         return (prevErrors ?? []).filter((err) => err.id !== lastError.id);
       })
@@ -48,6 +53,7 @@ export function ErrorAlert() {
   }, [ errors ]);
 
   return <View>
+    <AppButton onPress={_onPress} title="GenError" />
     <View>
       {
         errors?.map((errorData, index) => (

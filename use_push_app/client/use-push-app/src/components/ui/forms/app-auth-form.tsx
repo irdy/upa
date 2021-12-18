@@ -1,7 +1,7 @@
 import { Formik } from "formik";
 import { TextInput, View, Text, StyleSheet } from "react-native";
 import React from "react";
-import { AppButton } from "../buttons/AppButton";
+import { AppButton } from "../buttons/app-button";
 
 export interface AppAuthFormValues {
   username: string,

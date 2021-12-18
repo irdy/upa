@@ -108,7 +108,8 @@ class TokenManager:
         access_token_body = {
             "user_id": user_id,
             "iat": datetime.now(tz=timezone.utc),
-            "exp": datetime.now(tz=timezone.utc) + timedelta(minutes=30)
+            #"exp": datetime.now(tz=timezone.utc) + timedelta(minutes=30)
+            "exp": datetime.now(tz=timezone.utc) + timedelta(seconds=10)
         }
 
         refresh_token_body = {

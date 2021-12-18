@@ -1,6 +1,6 @@
-import {AuthStore} from "./auth-store";
-import {Store} from "./store";
-import { ErrorStore } from "./error.store";
+import { AuthResponseData, AuthStore } from "./auth-store";
+import { getStore } from "./store";
+import { errorConverter, ErrorStore } from "./error.store";
 
 export interface ApiResponse<T> {
   status: 'success' | 'fail' | 'error',
@@ -25,6 +25,10 @@ function getServerHost() {
 
 const SERVER_HOST = getServerHost();
 
+const Store = getStore();
+
+const ExpiredSignatureError = "ExpiredSignatureError";
+
 class Api extends Store {
 
   public_paths = [
@@ -32,6 +36,12 @@ class Api extends Store {
     '/api/auth/sign_up',
     '/api/auth/refresh_tokens',
   ]
+
+  static addAccessTokenToHeaders(headers: Headers) {
+    const tokenPair = AuthStore.getInstance().getSubject<AuthResponseData>("tokenPair").getValue();
+    const accessToken = "Bearer " + tokenPair.access_token ?? "";
+    headers.set('Authorization', accessToken);
+  }
 
   async call<T>(endpoint: string, requestInit: RequestInit = Object.create(RequestInitClass)): Promise<ApiResponse<T>> {
     const headers = new Headers();
@@ -43,7 +53,7 @@ class Api extends Store {
     headers.append('X-UUID', '');
 
     if (!this.public_paths.includes(endpoint)) {
-      headers.append('Authorization', AuthStore.getStore().accessToken ?? "");
+      Api.addAccessTokenToHeaders(headers);
     }
 
     const _requestInit: RequestInit = {
@@ -63,10 +73,19 @@ class Api extends Store {
 
       switch (status) {
         case "success":
-          console.log(result);
           return result;
         case "fail":
-          ErrorStore.getStore().errorsSubject.next({data, message});
+          // if server return `token expired`, then:
+          // 1) make request "refreshTokens"
+          // 2) repeat failed request with expired token with new token received on step 1)
+          if (message === ExpiredSignatureError) {
+            const prevRequest = request;
+            await AuthStore.getInstance().refreshTokens(); // todo try again logic?
+            Api.addAccessTokenToHeaders(prevRequest.headers);
+            await fetch(prevRequest);
+          } else {
+            ErrorStore.getInstance().errorsSubject.next(errorConverter({data, message}));
+          }
           return result;
         case "error":
           return Promise.reject(Error("Error: " + message ?? "Unknown Server Error"))
@@ -77,10 +96,9 @@ class Api extends Store {
       throw err;
     }
   }
-
 }
 
-const api = Api.getStore();
+const api = Api.getInstance();
 
 export {
   api

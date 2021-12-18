@@ -1,6 +1,5 @@
 import { Button, StyleSheet, View } from "react-native";
 
-
 export function AppButton(props: any) {
   return <View style={styles.size}>
     <Button color={"slategray"} {...props } />
@@ -12,4 +11,4 @@ const styles = StyleSheet.create({
     maxWidth: 240,
     marginBottom: 16,
   }
-})
+});

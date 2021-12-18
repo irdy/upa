@@ -2,46 +2,22 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthStore } from "../stores/auth-store";
 import { StyleSheet, Text, View } from "react-native";
-import { AppButton } from "./ui/buttons/AppButton";
+import { AppButton } from "./ui/buttons/app-button";
+import { ContactsListContainer } from "./consumers/contacts-list-container";
 
-export function Main() {
-  const [ isLoading, setIsLoading ] = React.useState<boolean>(true);
-
+function _Main() {
   const navigate = useNavigate();
 
-  React.useEffect(() => {
-    (async () => {
-      try {
-        const authStore = AuthStore.getStore();
-        if (authStore.accessToken) {
-          setIsLoading(false);
-          return;
-        }
-
-        const result = await authStore.refreshTokens();
-
-        if (result.status === "fail") {
-          return navigate("/sign_in");
-        }
-
-        authStore.setAccessToken(result.data);
-        setIsLoading(false);
-      } catch (err) {
-        throw err;
-      }
-    })();
-  }, [navigate]);
-
   const signOut = React.useCallback(async () => {
-    const authStore = AuthStore.getStore();
+    const authStore = AuthStore.getInstance();
     const result = await authStore.signOut();
     if (result.status === "success") {
-      navigate("/sign_in")
+      navigate("/sign_in");
     }
   }, [navigate]);
 
   const generateInvitationLink = React.useCallback(async () => {
-    const authStore = AuthStore.getStore();
+    const authStore = AuthStore.getInstance();
     const result = await authStore.generateInvitationLink();
     const { data } = result;
     if (data?.link_uuid) {
@@ -51,25 +27,25 @@ export function Main() {
     }
   }, []);
 
-  if (isLoading) {
-    // todo FullScreenSize Loader
-    return (
-      <View style={styles.root}>
-        <Text>...Loading</Text>
-      </View>
-    )
+  function navigateToStub() {
+    navigate("/stub")
   }
-
 
   return (
     <View style={styles.root}>
       <Text>Main Page</Text>
       <AppButton onPress={signOut} title={"Sign Out"}/>
       <AppButton onPress={generateInvitationLink} title={"Generate Invitation Link"}/>
+      <ContactsListContainer userId={19} contactListName={"DEFAULT_LIST"} />
+      <ContactsListContainer userId={19} contactListName={"DEFAULT_LIST"} />
+      <ContactsListContainer contactListName={"STRING_REPRESENTATION_LIST"} />
+      <ContactsListContainer contactListName={"STRING_REPRESENTATION_LIST"} />
+      <AppButton onPress={navigateToStub} title={"Stub Page"} />
     </View>
   )
 }
 
+export const Main = React.memo(_Main);
 
 const styles = StyleSheet.create({
   root: {
