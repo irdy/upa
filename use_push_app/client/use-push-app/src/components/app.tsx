@@ -23,8 +23,10 @@ function Router() {
     <View style={styles.container}>
       <BrowserRouter>
         <Routes>
-          <Route path="/sign_in" element={<Auth authType={"signIn"}/>}/>
-          <Route path="/sign_up/:link_uuid" element={<Auth authType={"signUp"}/>}/>
+          <Route element={<RequiredUserNotAuthorized />}>
+            <Route path="/sign_in" element={<Auth authType={"signIn"}/>}/>
+            <Route path="/sign_up/:link_uuid" element={<Auth authType={"signUp"}/>}/>
+          </Route>
 
           <Route element={<RequiredAuth />}>
             <Route path="/" element={<Main/>}/>
@@ -38,6 +40,22 @@ function Router() {
   )
 }
 
+const RequiredUserNotAuthorized = React.memo(function RequiredUserLoggedOut() {
+  const [tokenPair] = useObservable<AuthResponseData>(
+    AuthStore.getInstance().getSubject<AuthResponseData>("tokenPair")
+  );
+
+  console.log("tokenPairtokenPairtokenPair", tokenPair)
+
+  // Auth already loaded
+  if (tokenPair) {
+    // todo Sign_Out Page???
+    return <Navigate to="/" />;
+  }
+
+  return <Outlet />
+})
+
 const RequiredAuth = React.memo(function RequiredAuth() {
   const navigate = useNavigate();
   let location = useLocation();
@@ -45,20 +63,16 @@ const RequiredAuth = React.memo(function RequiredAuth() {
   const stateRef = React.useRef({ from: location });
   const authStore = AuthStore.getInstance();
 
-  const [tokenPair, , subjectInitialized] = useObservable<AuthResponseData>(
+  const [tokenPair] = useObservable<AuthResponseData>(
     AuthStore.getInstance().getSubject<AuthResponseData>("tokenPair")
   );
 
   React.useEffect(() => {
-      if (subjectInitialized) {
-        console.log("TOKEN_PAIR_ALREADY_LOADED");
-        return;
-      }
       if (tokenPair === undefined) {
         console.log("LOAD TOKEN PAIR");
         authStore.refreshTokens().finally();
       }
-  }, [authStore, navigate, subjectInitialized, tokenPair]);
+  }, [authStore, navigate, tokenPair]);
 
   // `undefined` means Data not loaded (Initial Value of Behaviour Subject)
   if (tokenPair === undefined) {

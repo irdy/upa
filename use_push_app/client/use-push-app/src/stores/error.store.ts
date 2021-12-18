@@ -1,5 +1,5 @@
 import {
-  Subject,
+  BehaviorSubject,
 } from "rxjs";
 import { getStore } from "./store";
 
@@ -29,7 +29,7 @@ export const errorConverter = makeErrorConverter();
 const Store = getStore();
 
 export class ErrorStore extends Store {
-  // todo?
-  errorsSubject = new Subject<IError>();
+  // todo init subject
+  errorsSubject = new BehaviorSubject<IError | undefined>(undefined);
 }
 
