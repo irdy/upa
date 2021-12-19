@@ -4,17 +4,13 @@ import { AuthStore } from "../stores/auth-store";
 import { StyleSheet, Text, View } from "react-native";
 import { AppButton } from "./ui/buttons/app-button";
 import { ContactsListContainer } from "./consumers/contacts-list-container";
+import { UserData, UserStore } from "../stores/user-store";
+import { useObservable } from "../hooks/useObservable";
+import { Preloader } from "./ui/other/preloader";
 
 function _Main() {
   const navigate = useNavigate();
-
-  const signOut = React.useCallback(async () => {
-    const authStore = AuthStore.getInstance();
-    const result = await authStore.signOut();
-    if (result.status === "success") {
-      navigate("/sign_in");
-    }
-  }, [navigate]);
+  const [userData] = useObservable<UserData>(UserStore.getInstance().getSubject("userData"));
 
   const generateInvitationLink = React.useCallback(async () => {
     const authStore = AuthStore.getInstance();
@@ -31,15 +27,15 @@ function _Main() {
     navigate("/stub")
   }
 
+  if (userData === undefined) {
+    return <Preloader />
+  }
+
   return (
     <View style={styles.root}>
       <Text>Main Page</Text>
-      <AppButton onPress={signOut} title={"Sign Out"}/>
       <AppButton onPress={generateInvitationLink} title={"Generate Invitation Link"}/>
-      <ContactsListContainer userId={19} contactListName={"DEFAULT_LIST"} />
-      <ContactsListContainer userId={19} contactListName={"DEFAULT_LIST"} />
-      <ContactsListContainer contactListName={"STRING_REPRESENTATION_LIST"} />
-      <ContactsListContainer contactListName={"STRING_REPRESENTATION_LIST"} />
+      <ContactsListContainer userId={userData.id} contactListName={"DEFAULT_LIST"} />
       <AppButton onPress={navigateToStub} title={"Stub Page"} />
     </View>
   )

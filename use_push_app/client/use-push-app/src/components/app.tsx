@@ -8,25 +8,25 @@ import { Auth } from "./auth";
 import { useObservable } from "../hooks/useObservable";
 import { AuthResponseData, AuthStore } from "../stores/auth-store";
 import { Preloader } from "./ui/other/preloader";
+import { Header } from "../header";
 
 /* todo SafeAreaView - use with Mobile Router */
 
 function App() {
   return <>
-    <Router/>
-    <ErrorAlert/>
+    <Router />
+    <ErrorAlert />
   </>
 }
 
+
 function Router() {
   return (
-    <View style={styles.container}>
+    <View>
       <BrowserRouter>
         <Routes>
-          <Route element={<RequiredUserNotAuthorized />}>
-            <Route path="/sign_in" element={<Auth authType={"signIn"}/>}/>
-            <Route path="/sign_up/:link_uuid" element={<Auth authType={"signUp"}/>}/>
-          </Route>
+          <Route path="/sign_in" element={<Auth authType={"signIn"}/>}/>
+          <Route path="/sign_up/:link_uuid" element={<Auth authType={"signUp"}/>}/>
 
           <Route element={<RequiredAuth />}>
             <Route path="/" element={<Main/>}/>
@@ -40,22 +40,6 @@ function Router() {
   )
 }
 
-const RequiredUserNotAuthorized = React.memo(function RequiredUserLoggedOut() {
-  const [tokenPair] = useObservable<AuthResponseData>(
-    AuthStore.getInstance().getSubject<AuthResponseData>("tokenPair")
-  );
-
-  console.log("tokenPairtokenPairtokenPair", tokenPair)
-
-  // Auth already loaded
-  if (tokenPair) {
-    // todo Sign_Out Page???
-    return <Navigate to="/" />;
-  }
-
-  return <Outlet />
-})
-
 const RequiredAuth = React.memo(function RequiredAuth() {
   const navigate = useNavigate();
   let location = useLocation();
@@ -68,10 +52,9 @@ const RequiredAuth = React.memo(function RequiredAuth() {
   );
 
   React.useEffect(() => {
-      if (tokenPair === undefined) {
-        console.log("LOAD TOKEN PAIR");
-        authStore.refreshTokens().finally();
-      }
+    if (tokenPair === undefined) {
+      authStore.refreshTokens().finally();
+    }
   }, [authStore, navigate, tokenPair]);
 
   // `undefined` means Data not loaded (Initial Value of Behaviour Subject)
@@ -84,7 +67,12 @@ const RequiredAuth = React.memo(function RequiredAuth() {
     return <Navigate to="/sign_in" state={stateRef.current} />;
   }
 
-  return <Outlet />;
+  return <View>
+    <Header />
+    <View style={styles.container}>
+      <Outlet />
+    </View>
+  </View>
 });
 
 const NotFound = React.memo(function NotFound() {

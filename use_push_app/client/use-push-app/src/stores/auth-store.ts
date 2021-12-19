@@ -1,6 +1,7 @@
 import { getStore } from "./store";
 import { api, ApiResponse } from "./api.service";
 import { TokenManager } from "../helpers/token-manager";
+import { UserData, userDataMapper, UserStore } from "./user-store";
 
 export interface AuthResponseData {
   access_token: string;
@@ -22,6 +23,9 @@ export class AuthStore extends Store {
     if (!authData) return null;
 
     authData.access_token = TokenManager.parseBearerToken(authData.access_token);
+    const userData = TokenManager.decode<UserData>(authData.access_token, {id: null, username: null}, userDataMapper);
+    UserStore.getInstance().setUserData(userData);
+
     if (authData.refresh_token) {
       authData.refresh_token = TokenManager.parseBearerToken(authData.refresh_token);
     }
@@ -51,15 +55,15 @@ export class AuthStore extends Store {
     return result;
   }
 
-  generateInvitationLink() {
-    return api.call<InvitationLink>('/api/auth/invitation_link');
-  }
-
   async signOut(): Promise<ApiResponse<AuthResponseData>> {
     const result = await api.call<AuthResponseData>('/api/auth/sign_out');
     this.setTokenPair(result.data);
 
     return result;
+  }
+
+  generateInvitationLink() {
+    return api.call<InvitationLink>('/api/auth/invitation_link');
   }
 }
 

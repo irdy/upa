@@ -19,8 +19,7 @@ export function useObservable<T,>(subject: BehaviorSubject<T>): [T | void, any] 
       )
       .subscribe({
         next: (val: T) => {
-          // if (val === undefined) throw Error("use null instead of undefined") // todo maybe
-          console.log("OBSERVABLE VALUE", val);
+          if (val === undefined) throw Error("use null instead of undefined");
           setValue(val);
         },
         error: setError, // subject ends here, how to handle it better?

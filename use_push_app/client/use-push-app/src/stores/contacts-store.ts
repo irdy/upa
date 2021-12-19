@@ -26,3 +26,5 @@ export class ContactsStore extends Store {
     return Utils.checkDataExist(resp.data).contacts;
   }
 }
+
+

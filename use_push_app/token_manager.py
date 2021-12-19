@@ -13,6 +13,7 @@ from use_push_app.utils import U
 
 JWT_SECRET = os.environ.get('JWT_SECRET')
 JWT_ALG = "HS256"
+REFRESH_TOKEN_LIFE_TIME = 180 # days
 
 
 class TokenManager:
@@ -102,11 +103,12 @@ class TokenManager:
         return client_token_iat != database_token_iat
 
     @staticmethod
-    def generate_token_pair(token_family: UUID, user_id: int) -> dict:
+    def generate_token_pair(token_family: UUID, user_id: int, user_name: str) -> dict:
         TokenManager.check_refresh_token_family(token_family)
 
         access_token_body = {
             "user_id": user_id,
+            "user_name": user_name,
             "iat": datetime.now(tz=timezone.utc),
             "exp": datetime.now(tz=timezone.utc) + timedelta(minutes=30)
             # "exp": datetime.now(tz=timezone.utc) + timedelta(seconds=10)
@@ -115,7 +117,7 @@ class TokenManager:
         refresh_token_body = {
             "token_family": token_family,
             "iat": datetime.now(tz=timezone.utc),
-            "exp": datetime.now(tz=timezone.utc) + timedelta(days=60)
+            "exp": datetime.now(tz=timezone.utc) + timedelta(days=REFRESH_TOKEN_LIFE_TIME)
         }
 
         access_token = jwt.encode(access_token_body, JWT_SECRET, algorithm=JWT_ALG)
@@ -151,7 +153,7 @@ class TokenManager:
         response = make_response(jsonify(resp_body_dict), status)
         if is_browser and refresh_token is not None:
             same_site_value = None if os.environ.get("DEBUG", False) else "Strict"
-            expire_date = datetime.now(tz=timezone.utc) + timedelta(minutes=60)
+            expire_date = datetime.now(tz=timezone.utc) + timedelta(days=REFRESH_TOKEN_LIFE_TIME)
             response.set_cookie(
                 "rt", refresh_token,
                 expires=expire_date,
@@ -214,7 +216,7 @@ class TokenManager:
         :param user: User
         :return: token pair
         """
-        token_pair = TokenManager.generate_token_pair(refresh_token_query.token_family, user.id)
+        token_pair = TokenManager.generate_token_pair(refresh_token_query.token_family, user.id, user.username)
         # update RefreshToken model with generated JWT-token
         refresh_token_query.token = token_pair["refresh_token"]
         db_session.commit()

@@ -27,8 +27,7 @@ export function Auth({ authType }: AuthProps) {
 
   React.useEffect(() => {
     if (tokenPair) {
-      console.log("tokenPair obtained, redirect to /")
-      navigate("/");
+      navigate("/", {replace: true});
     }
   }, [navigate, tokenPair])
 

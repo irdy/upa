@@ -24,8 +24,7 @@ const styles = StyleSheet.create({
   button: {
     display: "inline-flex",
     alignItems: "center",
-    //backgroundColor: "#ddd",
-    padding: 10
+    padding: 10,
   }
 });
 
