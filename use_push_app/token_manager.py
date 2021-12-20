@@ -219,6 +219,8 @@ class TokenManager:
         token_pair = TokenManager.generate_token_pair(refresh_token_query.token_family, user.id, user.username)
         # update RefreshToken model with generated JWT-token
         refresh_token_query.token = token_pair["refresh_token"]
+        refresh_token_query.user_id = user.id
+
         db_session.commit()
         return token_pair
 

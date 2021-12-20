@@ -5,6 +5,7 @@ import { View, Text } from "react-native";
 import { Utils } from "../utils";
 import { AppButton } from "./ui/buttons/app-button";
 
+
 const HIDE_ERROR_MESSAGE_TIMEOUT = 5000;
 
 export function ErrorAlert() {
@@ -13,20 +14,20 @@ export function ErrorAlert() {
 
   const [ errors, setErrors ] = React.useState<IError[]>();
 
-  const _onPress = () => {
-    const error = errorConverter(
-      {
-        message: null,
-        data: {
-          login: "login required",
-          password: "password required"
-        }
-      }
-    );
-
-    error.error.message = error.id.toString();
-    errorStore.errorsSubject.next(error);
-  }
+  // const _onPress = () => {
+  //   const error = errorConverter(
+  //     {
+  //       message: null,
+  //       data: {
+  //         login: "login required",
+  //         password: "password required"
+  //       }
+  //     }
+  //   );
+  //
+  //   error.error.message = error.id.toString();
+  //   errorStore.errorsSubject.next(error);
+  // }
 
   // todo replace with Observable
   React.useEffect(() => {
@@ -53,7 +54,7 @@ export function ErrorAlert() {
   }, [ errors ]);
 
   return <View>
-    <AppButton onPress={_onPress} title="GenError" />
+    {/*<AppButton onPress={_onPress} title="GenError" />*/}
     <View>
       {
         errors?.map((errorData, index) => (

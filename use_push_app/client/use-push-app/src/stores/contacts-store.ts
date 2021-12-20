@@ -5,6 +5,8 @@ import { Utils } from "../utils";
 export interface Contact {
   id: number;
   name: string;
+  user_id: number;
+  contact_user_id: number;
 }
 
 interface ContactData {

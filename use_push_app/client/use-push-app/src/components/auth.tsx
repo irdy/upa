@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { AppAuthForm, AppAuthFormValues } from "./ui/forms/app-auth-form";
 import { AuthResponseData, AuthStore } from "../stores/auth-store";
 import { Text, View } from "react-native";
-import { styles } from "../styles/common-styles";
+import { layoutStyles } from "../styles/common-styles";
 import { useObservable } from "../hooks/useObservable";
 
 interface AuthValues extends AppAuthFormValues {
@@ -46,7 +46,7 @@ export function Auth({ authType }: AuthProps) {
   }
 
   return (
-    <View style={styles.horCenter}>
+    <View style={layoutStyles.horCenter}>
       <Text>Please, {authType === "signUp" ? "Sign Up" : "Sign In"}</Text>
       <AppAuthForm onSubmit={onAuthFormSubmit}/>
     </View>

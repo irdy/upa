@@ -7,6 +7,8 @@ import { ContactsListContainer } from "./consumers/contacts-list-container";
 import { UserData, UserStore } from "../stores/user-store";
 import { useObservable } from "../hooks/useObservable";
 import { Preloader } from "./ui/other/preloader";
+import { Header } from "../header";
+import { layoutStyles } from "../styles/common-styles";
 
 function _Main() {
   const navigate = useNavigate();
@@ -24,7 +26,7 @@ function _Main() {
   }, []);
 
   function navigateToStub() {
-    navigate("/stub")
+    navigate("/push_subscriptions") // todo interface?
   }
 
   if (userData === undefined) {
@@ -32,19 +34,15 @@ function _Main() {
   }
 
   return (
-    <View style={styles.root}>
-      <Text>Main Page</Text>
-      <AppButton onPress={generateInvitationLink} title={"Generate Invitation Link"}/>
-      <ContactsListContainer userId={userData.id} contactListName={"DEFAULT_LIST"} />
-      <AppButton onPress={navigateToStub} title={"Stub Page"} />
+    <View style={layoutStyles.root}>
+      <Header />
+      <View style={layoutStyles.content}>
+        <AppButton onPress={generateInvitationLink} title={"Generate Invitation Link"}/>
+        <AppButton onPress={navigateToStub} title={"Subscriptions"} />
+        <ContactsListContainer userId={userData.id} contactListName={"DEFAULT_LIST"} />
+      </View>
     </View>
   )
 }
 
 export const Main = React.memo(_Main);
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  }
-});

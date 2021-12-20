@@ -1,11 +1,18 @@
 import { StyleSheet } from "react-native";
 
-export const styles = StyleSheet.create({
-  container: {
+export const layoutStyles = StyleSheet.create({
+  page: {
     //borderWidth: 2,
-    marginVertical: 32,
+    //marginVertical: 32,
+    // marginHorizontal: "auto",
+    justifyContent: "center",
+    minWidth: 480,
+    width: "100%",
+    flex: 1,
+  },
+  content: {
+    marginVertical: 16,
     marginHorizontal: 32,
-    justifyContent: "center"
   },
   root: {
     flex: 1,

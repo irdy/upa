@@ -2,13 +2,13 @@ import React from "react";
 import { View, Text } from 'react-native';
 import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { Main } from "./main";
-import { styles } from "../styles/common-styles";
+import { layoutStyles } from "../styles/common-styles";
 import { ErrorAlert } from "./error-alert";
 import { Auth } from "./auth";
 import { useObservable } from "../hooks/useObservable";
 import { AuthResponseData, AuthStore } from "../stores/auth-store";
 import { Preloader } from "./ui/other/preloader";
-import { Header } from "../header";
+import { PushSubscriptionsList } from "./push-subscriptions-list";
 
 /* todo SafeAreaView - use with Mobile Router */
 
@@ -30,7 +30,7 @@ function Router() {
 
           <Route element={<RequiredAuth />}>
             <Route path="/" element={<Main/>}/>
-            <Route path="/stub" element={<Stub/>}/>
+            <Route path="/push_subscriptions" element={<PushSubscriptionsList/>}/>
           </Route>
 
           <Route path="*" element={<NotFound />}/>
@@ -68,8 +68,7 @@ const RequiredAuth = React.memo(function RequiredAuth() {
   }
 
   return <View>
-    <Header />
-    <View style={styles.container}>
+    <View style={layoutStyles.page}>
       <Outlet />
     </View>
   </View>
@@ -80,10 +79,6 @@ const NotFound = React.memo(function NotFound() {
     <Text>There's nothing here! 404</Text>
   </View>
 });
-
-function Stub() {
-  return <h1>Stub</h1>
-}
 
 export default App;
 
