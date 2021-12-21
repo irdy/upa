@@ -28,7 +28,7 @@ async function askPermission() {
       console.log("Notification permission is granted!");
       break;
     default:
-      throw new Error("Unexpected Permission Result Status!");
+      console.log("user cancelled notification prompt");
   }
 }
 
