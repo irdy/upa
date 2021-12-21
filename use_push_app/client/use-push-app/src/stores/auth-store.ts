@@ -23,7 +23,7 @@ export class AuthStore extends Store {
     if (!authData) return null;
 
     authData.access_token = TokenManager.parseBearerToken(authData.access_token);
-    console.log("authData.access_token", authData.access_token)
+    // console.log("authData.access_token", authData.access_token)
     const userData = TokenManager.decode<UserData>(authData.access_token, {id: null, username: null}, userDataMapper);
     UserStore.getInstance().setUserData(userData);
 

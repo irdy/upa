@@ -1,6 +1,6 @@
 import { AuthResponseData, AuthStore } from "./auth-store";
 import { getStore } from "./store";
-import { errorConverter, ErrorStore } from "./error.store";
+import { ErrorStore } from "./error.store";
 
 export interface ApiResponse<T> {
   status: 'success' | 'fail' | 'error',
@@ -84,7 +84,7 @@ class Api extends Store {
             Api.addAccessTokenToHeaders(prevRequest.headers);
             await fetch(prevRequest);
           } else {
-            ErrorStore.getInstance().errorsSubject.next(errorConverter({data, message}));
+            ErrorStore.emitError({data, message});
           }
           return result;
         case "error":

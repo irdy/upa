@@ -1,6 +1,3 @@
-import {
-  BehaviorSubject,
-} from "rxjs";
 import { getStore } from "./store";
 
 let counter = 0; // Date?
@@ -26,10 +23,16 @@ function makeErrorConverter() {
 
 export const errorConverter = makeErrorConverter();
 
-const Store = getStore();
+type ErrorStoreSubjectNames = "error";
+
+const Store = getStore<ErrorStoreSubjectNames>();
 
 export class ErrorStore extends Store {
-  // todo init subject
-  errorsSubject = new BehaviorSubject<IError | undefined>(undefined);
+  @Store.withSubject<IError | void>("error")
+  init() { }
+
+  static emitError(errorData: IErrorData) {
+    ErrorStore.getInstance().getSubject("error").next(errorConverter(errorData))
+  }
 }
 

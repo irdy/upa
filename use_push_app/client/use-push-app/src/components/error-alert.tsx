@@ -1,33 +1,29 @@
 import React from "react";
-import { errorConverter, ErrorStore, IError } from "../stores/error.store";
+import { ErrorStore, IError } from "../stores/error.store";
 import { useObservable } from "../hooks/useObservable";
 import { View, Text } from "react-native";
 import { Utils } from "../utils";
 import { AppButton } from "./ui/buttons/app-button";
 
-
 const HIDE_ERROR_MESSAGE_TIMEOUT = 5000;
 
 export function ErrorAlert() {
   const errorStore = ErrorStore.getInstance();
-  const [ currentError ] = useObservable(errorStore.errorsSubject);
+  const [ currentError ] = useObservable(errorStore.getSubject<IError>("error"));
 
   const [ errors, setErrors ] = React.useState<IError[]>();
 
-  // const _onPress = () => {
-  //   const error = errorConverter(
-  //     {
-  //       message: null,
-  //       data: {
-  //         login: "login required",
-  //         password: "password required"
-  //       }
-  //     }
-  //   );
-  //
-  //   error.error.message = error.id.toString();
-  //   errorStore.errorsSubject.next(error);
-  // }
+  const _onPress = () => {
+    const errorData = {
+      message: null,
+      data: {
+        login: "login required",
+        password: "password required"
+      }
+    }
+
+    ErrorStore.emitError(errorData);
+  }
 
   // todo replace with Observable
   React.useEffect(() => {
@@ -54,7 +50,7 @@ export function ErrorAlert() {
   }, [ errors ]);
 
   return <View>
-    {/*<AppButton onPress={_onPress} title="GenError" />*/}
+    <AppButton onPress={_onPress} title="GenError" />
     <View>
       {
         errors?.map((errorData, index) => (

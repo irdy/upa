@@ -34,16 +34,6 @@ export function getStore<S>() {
       _constructor._instance = this;
     }
 
-    static initSubject<T>(subjectName: S, data: T): BehaviorSubject<T> | void {
-      console.log("THIS", this);
-      const subjectPropName = subjectName + 'Subject';
-      // if (!target[subjectPropName]) {
-      //   target[subjectPropName] = new BehaviorSubject<T>(data);
-      // }
-      //
-      // return data;
-    }
-
     /**
      * Check subject exist on store
      * If exists: return this subject
