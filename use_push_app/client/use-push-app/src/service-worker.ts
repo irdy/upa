@@ -23,3 +23,9 @@ const ignored = self.__WB_MANIFEST;
 console.log("CUSTOM SERVICE WORKER REGISTERED");
 // export something
 export const a = "webpack please dont cry";
+
+self.addEventListener('push', function(event) {
+  const promiseChain = self.registration.showNotification('Hello, World.');
+
+  event.waitUntil(promiseChain);
+});
