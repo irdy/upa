@@ -83,7 +83,7 @@ function _Main() {
     }
 
     await askPermission();
-    console.log(process.env.REACT_APP_PUSH_VAPID_PUBLIC_KEY);
+    console.log("REACT_APP_PUSH_VAPID_PUBLIC_KEY", process.env.REACT_APP_PUSH_VAPID_PUBLIC_KEY);
     const pushSubscription = await subscribeUserToPush();
     console.log("pushSubscription", pushSubscription);
   }, []);
