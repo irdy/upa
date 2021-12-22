@@ -10,6 +10,7 @@ import { Header } from "../header";
 import { layoutStyles } from "../styles/common-styles";
 import { ErrorStore } from "../stores/error.store";
 
+// todo вынести логику в класс
 async function askPermission() {
   if (!("Notification" in window)) {
     const errMessage = "This browser does not support desktop notification";
@@ -32,17 +33,28 @@ async function askPermission() {
   }
 }
 
-async function registerServiceWorker() {
+async function registerServiceWorker(): Promise<ServiceWorkerRegistration> {
   try {
-    const registration = await navigator.serviceWorker.register('service-worker.js')
-    console.log('Service worker successfully registered. Registration', registration);
-    return registration;
+    return navigator.serviceWorker.register('service-worker.js')
   } catch (err) {
     // handle the error
     ErrorStore.emitError({
       message: "Unable to register service worker"
     });
+    throw err;
   }
+}
+
+async function subscribeUserToPush(): Promise<PushSubscription> {
+  const registration = await registerServiceWorker();
+  console.log('Service worker successfully registered. Registration', registration);
+
+  const subscribeOptions = {
+    userVisibleOnly: true,
+    applicationServerKey: process.env.REACT_APP_PUSH_VAPID_PUBLIC_KEY
+  };
+
+  return registration.pushManager.subscribe(subscribeOptions);
 }
 
 function _Main() {
@@ -70,8 +82,10 @@ function _Main() {
       return;
     }
 
-    await registerServiceWorker();
     await askPermission();
+    console.log(process.env.REACT_APP_PUSH_VAPID_PUBLIC_KEY);
+    const pushSubscription = await subscribeUserToPush();
+    console.log("pushSubscription", pushSubscription);
   }, []);
 
   if (userData === undefined) {
