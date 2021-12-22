@@ -35,7 +35,7 @@ async function askPermission() {
 async function registerServiceWorker() {
   try {
     const registration = await navigator.serviceWorker.register('service-worker.js')
-    console.log('Service worker successfully registered.');
+    console.log('Service worker successfully registered. Registration', registration);
     return registration;
   } catch (err) {
     // handle the error
