@@ -24,10 +24,10 @@ console.log("CUSTOM SERVICE WORKER REGISTERED");
 // export something
 export const a = "webpack please dont cry";
 
-self.addEventListener('push', function(event) {
+self.addEventListener('push', function(e) {
   try {
     const promiseChain = self.registration.showNotification('Hello, World.');
-    event.waitUntil(promiseChain);
+    e.waitUntil(promiseChain);
 
   } catch (err) {
     console.error(err);

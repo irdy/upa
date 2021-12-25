@@ -28,11 +28,10 @@ type ErrorStoreSubjectNames = "error";
 const Store = getStore<ErrorStoreSubjectNames>();
 
 export class ErrorStore extends Store {
-  @Store.withSubject<IError | void>("error")
-  init() { }
-
   static emitError(errorData: IErrorData) {
     ErrorStore.getInstance().getSubject("error").next(errorConverter(errorData))
   }
 }
+
+ErrorStore.initSubject<IError | void>("error");
 

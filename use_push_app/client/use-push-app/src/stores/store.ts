@@ -34,6 +34,13 @@ export function getStore<S>() {
       _constructor._instance = this;
     }
 
+    static initSubject<T>(subjectName: S) {
+      if (this.name === "Store") {
+        throw new Error("Use only with sub classes");
+      }
+      return Store._getSubject<T>(subjectName, this.prototype);
+    }
+
     /**
      * Check subject exist on store
      * If exists: return this subject
@@ -50,7 +57,6 @@ export function getStore<S>() {
       return target[subjectPropName];
     }
 
-
     /**
      * Decorator
      * Emit data returned from decorated function to subject.
@@ -61,16 +67,18 @@ export function getStore<S>() {
      * @param subjectName
      */
     static withSubject<T>(subjectName: S) {
+      const that = this;
+
       type Sync = (...args: never[]) => T;
       type Async = (...args: never[]) => Promise<T>;
 
       type DecoratedFunction = Sync | Async;
 
-      const isAsync = (myFunction: DecoratedFunction): myFunction is Async =>
-        myFunction.constructor.name === "AsyncFunction";
-
-      const isSync = (myFunction: DecoratedFunction): myFunction is Sync =>
-        myFunction.constructor.name !== "AsyncFunction";
+      // const isAsync = (myFunction: DecoratedFunction): myFunction is Async =>
+      //   myFunction.constructor.name === "AsyncFunction";
+      //
+      // const isSync = (myFunction: DecoratedFunction): myFunction is Sync =>
+      //   myFunction.constructor.name !== "AsyncFunction";
 
       return function (
         target: any,
@@ -82,26 +90,40 @@ export function getStore<S>() {
           throw Error("Fatal error");
         }
 
-        const subject = Store._getSubject<T>(subjectName, target);
+        /**
+         * if target === undefined AND this.name === Store => decorator applied to Sub-class of Store
+         * else target !== undefined && that.name !== "Store" => decorator applied to another class
+         */
+        const isNotStoreInstance = target !== undefined && that.name !== "Store";
+        const storeInstance = isNotStoreInstance ? that.prototype : target;
+
+        //const subject = Store._getSubject<T>(subjectName, target);
+        const subject = Store._getSubject<T>(subjectName, storeInstance);
 
         function getHandler(method: DecoratedFunction): DecoratedFunction {
-          if (isAsync(method)) {
-            return async function Async(...args: never[]): Promise<T> {
-              const data = await method(...args);
-              subject.next(data);
-              return data;
-            }
+          return async function Async(...args: never[]): Promise<T> {
+            const data = await method(...args);
+            subject.next(data);
+            return data;
           }
 
-          if (isSync(method)) {
-            return function Sync(...args: never[]): T {
-              const data = method(...args);
-              subject.next(data);
-              return data;
-            }
-          }
-
-          throw Error("Cannot determine a function");
+          // if (isAsync(method)) {
+          //   return async function Async(...args: never[]): Promise<T> {
+          //     const data = await method(...args);
+          //     subject.next(data);
+          //     return data;
+          //   }
+          // }
+          //
+          // if (isSync(method)) {
+          //   return function Sync(...args: never[]): T {
+          //     const data = method(...args);
+          //     subject.next(data);
+          //     return data;
+          //   }
+          // }
+          //
+          // throw Error("Cannot determine a function");
         }
 
         descriptor.value = getHandler(method);

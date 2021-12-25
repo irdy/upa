@@ -25,6 +25,7 @@ class AuthMiddleware:
             if request.path.startswith('/api'):
                 is_api_request = 'X_UUID' in request.headers
                 if not is_api_request:
+                    print("no api request", request.path)
                     return self.app(environ, start_response)
 
             return self.app(environ, start_response)

@@ -1,6 +1,6 @@
 import uuid
 
-from flask import make_response, jsonify
+from flask import make_response, jsonify, send_from_directory
 
 from database import db_session
 from use_push_app import app
@@ -9,15 +9,20 @@ from use_push_app.models.models import User, RefreshToken, InvitationLink, Conta
 from use_push_app.token_manager import TokenManager
 from use_push_app.utils import U, Validator
 
+@app.route('/service-worker.js')
+def load_service_worker():
+    return app.send_static_file('service-worker.js')
 
 # HOME
 @app.route('/')
 def index():
+    print("wtf")
     return app.send_static_file('index.html')
 
 
 @app.errorhandler(404)
 def not_found(e):
+    print("not found")
     return app.send_static_file('index.html')
 
 
