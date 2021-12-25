@@ -8,9 +8,8 @@ export class PushSubscriptionManager {
     const pushManagerSupported = "PushManager" in window;
     const notificationSupported = "Notification" in window;
 
-    return !serviceWorkerSupported || !pushManagerSupported || !notificationSupported
+    return !serviceWorkerSupported || !pushManagerSupported || !notificationSupported;
   }
-
 
   static getPushUnsupportedError(): string | null {
     if (PushSubscriptionManager.pushNotificationsUnsupported()) {
@@ -37,7 +36,6 @@ export class PushSubscriptionManager {
   }
 
   static async subscribeUserToPush(): Promise<PushSubscription> {
-    //const registration = await PushSubscriptionManager.registerServiceWorker();
     let registration = await navigator.serviceWorker.getRegistration();
     if (registration === undefined) {
       registration = await PushSubscriptionManager.registerServiceWorker();

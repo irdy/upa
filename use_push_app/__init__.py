@@ -15,7 +15,6 @@ if debug:
     print("App runs in debug mode. CORS Enabled")
     CORS(app, resources={
         r"/api/*": {"origins": "http://localhost:3000"},
-        #r"/service-worker.js": {"origins": "http://localhost:3000"},
     }, supports_credentials=True)
 else:
     print("App runs in production mode. CORS Disabled")

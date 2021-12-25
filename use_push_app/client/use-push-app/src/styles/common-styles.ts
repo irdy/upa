@@ -19,5 +19,11 @@ export const layoutStyles = StyleSheet.create({
   },
   horCenter: {
     justifyContent: "center"
-  }
+  },
 });
+
+export const colorStyles = StyleSheet.create({
+  warning: {
+    color: "firebrick"
+  }
+})

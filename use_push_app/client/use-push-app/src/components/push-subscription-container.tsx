@@ -5,6 +5,7 @@ import { Text } from 'react-native';
 import { Preloader } from "./ui/other/preloader";
 import { useObservable } from "../hooks/useObservable";
 import { PushNotificationStore } from "../stores/push-notification-store";
+import { colorStyles } from "../styles/common-styles";
 
 export const PushSubscriptionContainer = React.memo(function PushSubscriptionContainer() {
   const unsupportedError = PushSubscriptionManager.getPushUnsupportedError();
@@ -17,36 +18,33 @@ export const PushSubscriptionContainer = React.memo(function PushSubscriptionCon
 });
 
 function PushSubscriptionControls() {
+  const pushSubscriptionSubject = PushNotificationStore.getInstance().getSubject<PushSubscription | null>(
+    "pushSubscription"
+  );
+
   const subscribe = React.useCallback(async () => {
+    // todo handle PermissionState with UI
     const permissionResult = await PushSubscriptionManager.askPermission();
     console.log("permissionResult", permissionResult);
     if (permissionResult === "granted") {
       const pushSubscription = await PushSubscriptionManager.subscribeUserToPush();
+      pushSubscriptionSubject.next(pushSubscription);
       console.log("pushSubscription", pushSubscription);
 
       // todo save to server
     } else if (permissionResult === "denied") {
       // ? You must allow notifications for correct workflow
     }
-  }, []);
-
-  const showAllowNotificationMessage = React.useCallback(() => {
-    // todo attach gif || message "please enable notifications in browser settings"
-    console.log("please enable/disable notifications in browser settings");
-  }, []);
+  }, [pushSubscriptionSubject]);
 
   const unsubscribe = React.useCallback(async () => {
     const result = await PushSubscriptionManager.unsubscribeUserFromPush();
+    if (result) {
+      pushSubscriptionSubject.next(null);
+    }
     console.log("unsubscribed successfully?", result);
     // todo notify user
-  }, []);
-
-  const SubscriptionControls = React.useRef<Record<NotificationPermission | PermissionState, React.FunctionComponent>>({
-    denied: () => <AppButton onPress={showAllowNotificationMessage} title={"Allow Notifications"} />,
-    granted: () => <AppButton onPress={unsubscribe} title={"Unsubscribe"} />,
-    prompt: () => <AppButton onPress={subscribe} title={"Subscribe"} />,
-    default: () => <AppButton onPress={subscribe} title={"Subscribe"} />
-  });
+  }, [pushSubscriptionSubject]);
 
   const [permissionState] = useObservable(
     PushNotificationStore.getInstance().getSubject<NotificationPermission | PermissionState>(
@@ -54,11 +52,7 @@ function PushSubscriptionControls() {
     )
   );
 
-  const [pushSubscription] = useObservable(
-    PushNotificationStore.getInstance().getSubject<PushSubscription | null>(
-      "pushSubscription"
-    )
-  );
+  const [pushSubscription] = useObservable(pushSubscriptionSubject);
 
   React.useEffect(() => {
     PushSubscriptionManager.getSubscription().catch(err => { throw err });
@@ -70,9 +64,19 @@ function PushSubscriptionControls() {
   }
 
   if (pushSubscription === null) {
-    return <AppButton onPress={subscribe} title={"Subscribe"} />
+    return <>
+        {
+          permissionState === "denied"
+            /* // todo attach gif || message "please enable notifications in browser settings" */
+            ? <Text style={colorStyles.warning}>You are block Push Notifications. Please allow it in site settings!</Text>
+            : <AppButton onPress={subscribe} title={"Subscribe"} asyncDisable />
+        }
+    </>
+
   }
 
-  return <AppButton onPress={unsubscribe} title={"Unsubscribe"} />
+  return (
+    <AppButton onPress={unsubscribe} title={"Unsubscribe"} asyncDisable />
+  )
 }
 
