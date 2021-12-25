@@ -36,8 +36,9 @@ function PushSubscriptionControls() {
   }, []);
 
   const unsubscribe = React.useCallback(async () => {
-    // todo disable: how to unsubscribe?
-    console.log("unsubscribe logic!!!");
+    const result = await PushSubscriptionManager.unsubscribeUserFromPush();
+    console.log("unsubscribed successfully?", result);
+    // todo notify user
   }, []);
 
   const SubscriptionControls = React.useRef<Record<NotificationPermission | PermissionState, React.FunctionComponent>>({
@@ -53,18 +54,25 @@ function PushSubscriptionControls() {
     )
   );
 
+  const [pushSubscription] = useObservable(
+    PushNotificationStore.getInstance().getSubject<PushSubscription | null>(
+      "pushSubscription"
+    )
+  );
+
   React.useEffect(() => {
+    PushSubscriptionManager.getSubscription().catch(err => { throw err });
     PushSubscriptionManager.getNotificationPermissionState().catch(err => { throw err });
   }, []);
 
-  if (permissionState === undefined) {
+  if (permissionState === undefined || pushSubscription === undefined) {
     return <Preloader />
   }
 
-  const Component = SubscriptionControls.current[permissionState];
+  if (pushSubscription === null) {
+    return <AppButton onPress={subscribe} title={"Subscribe"} />
+  }
 
-  return (
-    <Component />
-  )
+  return <AppButton onPress={unsubscribe} title={"Unsubscribe"} />
 }
 

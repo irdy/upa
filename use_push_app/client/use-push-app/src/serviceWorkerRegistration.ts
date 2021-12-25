@@ -35,7 +35,10 @@ export function register(config?: Config) {
     }
 
     // window.addEventListener('load', () => {
-      const swUrl = `${process.env.PUBLIC_URL}/service-worker.js`;
+      let swUrl = `${process.env.PUBLIC_URL}/service-worker.js`;
+      if (window.location.host === "localhost:3000") {
+        swUrl = "http://localhost:5000/service-worker.js"
+      }
 
       if (isLocalhost) {
         // This is running on localhost. Let's check if a service worker still exists or not.
@@ -73,10 +76,11 @@ function registerValidSW(swUrl: string, config?: Config) {
               // At this point, the updated precached content has been fetched,
               // but the previous service worker will still serve the older
               // content until all client tabs are closed.
-              console.log(
-                'New content is available and will be used when all ' +
-                  'tabs for this page are closed. See https://cra.link/PWA.'
-              );
+
+              // console.log(
+              //   'New content is available and will be used when all ' +
+              //     'tabs for this page are closed. See https://cra.link/PWA.'
+              // );
 
               // Execute callback
               if (config && config.onUpdate) {

@@ -9,4 +9,8 @@ AppRegistry.runApplication("App", {
   rootTag: document.getElementById("root")
 });
 
-PushSubscriptionManager.registerServiceWorker().catch(err => { throw err });
+window.addEventListener("load", () => {
+  PushSubscriptionManager.registerServiceWorker().catch(err => { throw err });
+});
+
+

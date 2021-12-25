@@ -8,21 +8,16 @@ from use_push_app.controllers.users_controller import create_user
 from use_push_app.models.models import User, RefreshToken, InvitationLink, Contact
 from use_push_app.token_manager import TokenManager
 from use_push_app.utils import U, Validator
-
-@app.route('/service-worker.js')
-def load_service_worker():
-    return app.send_static_file('service-worker.js')
+from use_push_app.auth_middleware import enable_cors
 
 # HOME
 @app.route('/')
 def index():
-    print("wtf")
     return app.send_static_file('index.html')
 
 
 @app.errorhandler(404)
 def not_found(e):
-    print("not found")
     return app.send_static_file('index.html')
 
 

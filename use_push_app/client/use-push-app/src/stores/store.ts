@@ -74,12 +74,6 @@ export function getStore<S>() {
 
       type DecoratedFunction = Sync | Async;
 
-      // const isAsync = (myFunction: DecoratedFunction): myFunction is Async =>
-      //   myFunction.constructor.name === "AsyncFunction";
-      //
-      // const isSync = (myFunction: DecoratedFunction): myFunction is Sync =>
-      //   myFunction.constructor.name !== "AsyncFunction";
-
       return function (
         target: any,
         propertyKey: string,
@@ -97,33 +91,14 @@ export function getStore<S>() {
         const isNotStoreInstance = target !== undefined && that.name !== "Store";
         const storeInstance = isNotStoreInstance ? that.prototype : target;
 
-        //const subject = Store._getSubject<T>(subjectName, target);
         const subject = Store._getSubject<T>(subjectName, storeInstance);
 
-        function getHandler(method: DecoratedFunction): DecoratedFunction {
+        function getHandler(method: DecoratedFunction): Async {
           return async function Async(...args: never[]): Promise<T> {
             const data = await method(...args);
             subject.next(data);
             return data;
           }
-
-          // if (isAsync(method)) {
-          //   return async function Async(...args: never[]): Promise<T> {
-          //     const data = await method(...args);
-          //     subject.next(data);
-          //     return data;
-          //   }
-          // }
-          //
-          // if (isSync(method)) {
-          //   return function Sync(...args: never[]): T {
-          //     const data = method(...args);
-          //     subject.next(data);
-          //     return data;
-          //   }
-          // }
-          //
-          // throw Error("Cannot determine a function");
         }
 
         descriptor.value = getHandler(method);

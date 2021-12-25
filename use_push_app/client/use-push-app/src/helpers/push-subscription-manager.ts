@@ -1,15 +1,19 @@
 import { ErrorStore } from "../stores/error.store";
-import * as serviceWorkerRegistration from "../serviceWorkerRegistration";
 import { PushNotificationStore } from "../stores/push-notification-store";
 
 export class PushSubscriptionManager {
 
-  static getPushUnsupportedError(): string | null {
+  static pushNotificationsUnsupported(): boolean {
     const serviceWorkerSupported = "serviceWorker" in navigator;
     const pushManagerSupported = "PushManager" in window;
     const notificationSupported = "Notification" in window;
 
-    if (!serviceWorkerSupported || !pushManagerSupported || !notificationSupported) {
+    return !serviceWorkerSupported || !pushManagerSupported || !notificationSupported
+  }
+
+
+  static getPushUnsupportedError(): string | null {
+    if (PushSubscriptionManager.pushNotificationsUnsupported()) {
       const errMsg = "Push Notifications isn't supported on this browser!";
       ErrorStore.emitError({message: errMsg});
       return errMsg;
@@ -24,19 +28,12 @@ export class PushSubscriptionManager {
   }
 
   static async registerServiceWorker(): Promise<ServiceWorkerRegistration> {
-    return new Promise((resolve) => {
-      try {
-        serviceWorkerRegistration.register({
-          onSuccess: (registration) => {
-            console.log("Service worker successfully registered!");
-            resolve(registration);
-          }
-        });
-      } catch (err) {
-        console.error(err);
-        throw new Error("Unable to register service worker");
-      }
-    });
+    if (PushSubscriptionManager.pushNotificationsUnsupported()) {
+      console.error("pushNotificationsUnsupported");
+    }
+
+    const swPath = `${process.env.PUBLIC_URL}/sw.js`;
+    return navigator.serviceWorker.register(swPath);
   }
 
   static async subscribeUserToPush(): Promise<PushSubscription> {
@@ -52,6 +49,24 @@ export class PushSubscriptionManager {
     };
 
     return registration.pushManager.subscribe(subscribeOptions);
+  }
+
+  @PushNotificationStore.withSubject<PushSubscription | null>("pushSubscription")
+  static async getSubscription(): Promise<PushSubscription | null> {
+    const registration = await navigator.serviceWorker.getRegistration();
+    if (!registration) {
+      throw Error("Service worker registration is undefined");
+    }
+
+    return registration.pushManager.getSubscription();
+  }
+
+  static async unsubscribeUserFromPush(): Promise<boolean> {
+    const subscription = await PushSubscriptionManager.getSubscription();
+    if (subscription === null) {
+      throw Error("User tries to unsubscribe from push notifications, but push subscription is null");
+    }
+    return subscription.unsubscribe();
   }
 
   @PushNotificationStore.withSubject<NotificationPermission | PermissionState>("notificationPermissionState")
