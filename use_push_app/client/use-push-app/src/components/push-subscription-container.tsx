@@ -6,6 +6,7 @@ import { Preloader } from "./ui/other/preloader";
 import { useObservable } from "../hooks/useObservable";
 import { PushNotificationStore } from "../stores/push-notification-store";
 import { colorStyles } from "../styles/common-styles";
+import { UserStore } from "../stores/user-store";
 
 export const PushSubscriptionContainer = React.memo(function PushSubscriptionContainer() {
   const unsupportedError = PushSubscriptionManager.getPushUnsupportedError();
@@ -30,8 +31,9 @@ function PushSubscriptionControls() {
       const pushSubscription = await PushSubscriptionManager.subscribeUserToPush();
       pushSubscriptionSubject.next(pushSubscription);
       console.log("pushSubscription", pushSubscription);
-
-      // todo save to server
+      const user_id = UserStore.getInstance().getUserData().id;
+      console.log("user_id", user_id);
+      return PushNotificationStore.getInstance().savePushSubscription(pushSubscription, user_id)
     } else if (permissionResult === "denied") {
       // ? You must allow notifications for correct workflow
     }

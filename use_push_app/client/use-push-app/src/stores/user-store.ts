@@ -22,4 +22,8 @@ export class UserStore extends Store {
     return data;
   }
 
+  getUserData(): UserData {
+    return UserStore.getInstance().getSubject<UserData>("userData").getValue();
+  }
+
 }

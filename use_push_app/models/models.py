@@ -95,15 +95,42 @@ class Contact(Base, SerializerMixin):
 class PushSubscription(Base, SerializerMixin):
     __tablename__ = "push_subscriptions"
 
+    serialize_only = ('id', 'endpoint', 'user_id', 'created_at')
+
     id = Column(Integer, primary_key=True)
-    sub_endpoint = Column(String(200), unique=True, nullable=False)
-    user_agent = Column(String(200))
+    endpoint = Column(String(300), unique=True, nullable=False)
+    expiration_time = Column(String(200)) # ?
+    p256dh = Column(String(200), nullable=False)
+    auth = Column(String(100), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     user_id = Column(Integer, ForeignKey('users.id'))
 
-    def __init__(self, sub_endpoint, user_agent):
-        self.sub_endpoint = sub_endpoint
-        self.user_agent = user_agent
+    user_agent = relationship("UserAgent", back_populates="push_subscription", uselist=False)
+
+    def __init__(self, endpoint, p256dh, auth, user_id, expiration_time=None):
+        self.endpoint = endpoint
+        self.p256dh = p256dh
+        self.auth = auth
+        self.expiration_time = expiration_time
+        self.user_id = user_id
 
     def __repr__(self):
-        return f'Push Subscription {self.sub_endpoint}'
+        return f'Push Subscription {self.endpoint}'
+
+class UserAgent(Base, SerializerMixin):
+    __tablename__ = "user_agents"
+
+    id = Column(Integer, primary_key=True)
+    user_agent = Column(String(200))
+
+    push_subscription_id = Column(Integer, ForeignKey('push_subscriptions.id'))
+    push_subscription = relationship("PushSubscription", back_populates="user_agent")
+
+    def __init__(self, user_agent): #, push_subscription_id):
+        self.user_agent = user_agent
+        # self.push_subscription_id = push_subscription_id
+
+    def __repr__(self):
+        return f'User Agent {self.user_agent}'
+
