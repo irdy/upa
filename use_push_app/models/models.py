@@ -129,9 +129,8 @@ class UserAgent(Base, SerializerMixin):
     push_subscription_id = Column(Integer, ForeignKey('push_subscriptions.id'))
     push_subscription = relationship("PushSubscription", back_populates="user_agent")
 
-    def __init__(self, user_agent): #, push_subscription_id):
+    def __init__(self, user_agent):
         self.user_agent = user_agent
-        # self.push_subscription_id = push_subscription_id
 
     def __repr__(self):
         return f'User Agent {self.user_agent}'
