@@ -51,9 +51,9 @@ export class PushSubscriptionManager {
 
   @PushNotificationStore.withSubject<PushSubscription | null>("pushSubscription")
   static async getSubscription(): Promise<PushSubscription | null> {
-    const registration = await navigator.serviceWorker.getRegistration();
+    let registration = await navigator.serviceWorker.getRegistration();
     if (!registration) {
-      throw Error("Service worker registration is undefined");
+      registration = await PushSubscriptionManager.registerServiceWorker();
     }
 
     return registration.pushManager.getSubscription();

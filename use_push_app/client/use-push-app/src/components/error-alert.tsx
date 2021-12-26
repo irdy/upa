@@ -50,7 +50,7 @@ export function ErrorAlert() {
   }, [ errors ]);
 
   return <View>
-    <AppButton onPress={_onPress} title="GenError" />
+    {/*<AppButton onPress={_onPress} title="GenError" />*/}
     <View>
       {
         errors?.map((errorData, index) => (

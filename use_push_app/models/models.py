@@ -106,7 +106,7 @@ class PushSubscription(Base, SerializerMixin):
 
     user_id = Column(Integer, ForeignKey('users.id'))
 
-    user_agent = relationship("UserAgent", back_populates="push_subscription", uselist=False)
+    user_agent = relationship("UserAgent", back_populates="push_subscription", uselist=False, cascade="all, delete-orphan")
 
     def __init__(self, endpoint, p256dh, auth, user_id, expiration_time=None):
         self.endpoint = endpoint
@@ -120,6 +120,8 @@ class PushSubscription(Base, SerializerMixin):
 
 class UserAgent(Base, SerializerMixin):
     __tablename__ = "user_agents"
+
+    serialize_only = ('id', 'user_agent', 'push_subscription_id')
 
     id = Column(Integer, primary_key=True)
     user_agent = Column(String(200))
