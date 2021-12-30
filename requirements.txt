@@ -21,3 +21,4 @@ SQLAlchemy==1.4.26
 SQLAlchemy-serializer==1.4.1
 Werkzeug==2.0.2
 zipp==3.6.0
+pywebpush==1.14.0

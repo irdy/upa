@@ -6,14 +6,14 @@ interface SubscribedDeviceData {
   subscribed_devices: SubscribedDevice[];
 }
 
-interface SubscribedDevice {
+export interface SubscribedDevice {
   id: number,
   push_subscription_id: number,
   user_agent: string,
 }
 
 
-type PushNotificationStoreSubjectNames = "notificationPermissionState" | "pushSubscription";
+type PushNotificationStoreSubjectNames = "notificationPermissionState" | "pushSubscription" | "subscribedDevices";
 
 const Store = getStore<PushNotificationStoreSubjectNames>();
 
@@ -44,12 +44,26 @@ export class PushNotificationStore extends Store {
     })
   }
 
+  @Store.withSubject<SubscribedDevice[]>("subscribedDevices")
   async getSubscribedDevices(user_id: number): Promise<SubscribedDevice[]> {
     const data = await api.call<SubscribedDeviceData>(`/api/users/${user_id}/subscribed_devices`, {
       method: "GET"
     });
 
     return Utils.checkDataExist(data.data).subscribed_devices;
+  }
+
+  async sendPushNotification(message_body: string, sub_ids: number[]) {
+    const notificationData = JSON.stringify({
+      payload: {
+        message_body, sub_ids
+      }
+    });
+
+    return api.call<SubscribedDeviceData>(`/api/push_subscriptions/send`, {
+        body: notificationData
+      }
+    );
   }
 }
 

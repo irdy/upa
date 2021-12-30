@@ -1,6 +1,11 @@
 self.addEventListener('push', function(e) {
   try {
-    const promiseChain = self.registration.showNotification('Hello, World.');
+    const data = e.data.json();
+    const { title = 'New incoming message', message } = data;
+
+    const promiseChain = self.registration.showNotification(title, {
+      body: message
+    });
     e.waitUntil(promiseChain);
 
   } catch (err) {

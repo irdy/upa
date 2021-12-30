@@ -1,9 +1,13 @@
+import os
 from flask import request, jsonify
 from database import db_session
 from use_push_app import app
 from use_push_app.models.models import PushSubscription, User, UserAgent
 from use_push_app.utils import QueryUtils, Validator, U
 import base64
+from pywebpush import webpush, WebPushException
+import json
+
 
 @app.route('/api/users/<int:user_id>/push_subscriptions', methods=['POST'])
 def create_push_sub(user_id):
@@ -75,6 +79,79 @@ def delete_push_sub(push_sub_endpoint_base64):
         return response
 
     return QueryUtils.delete(PushSubscription, push_subscription_query.id, 'PushSubscription')
+
+
+@app.route('/api/push_subscriptions/send', methods=["POST"])
+def send_push_notification():
+    data = U.get_request_payload()
+    Validator.validate_required_keys(data, ["message_body", "sub_ids"])
+
+    # todo validate data, message length, sub_ids is array of integer, DataValidatorClass
+
+    message_body = data["message_body"]
+    sub_ids = data["sub_ids"]
+
+    result = dict(
+        not_existed_subs = [],
+        delivered=[],
+        not_delivered=[]
+    )
+
+    for sub_id in sub_ids:
+        push_sub_query = get_subscription_endpoint_by_sub_id(sub_id)
+        if push_sub_query is None:
+            result.not_existed_subs.append(sub_id)
+
+        try:
+            push_data = {
+                #"title": "TITLE!!!!!",
+                "message": message_body
+            }
+
+            json_data = json.dumps(push_data)
+
+            webpush(
+                subscription_info={
+                    "endpoint": push_sub_query.endpoint,
+                    "keys": {
+                        "p256dh": push_sub_query.p256dh,
+                        "auth": push_sub_query.auth
+                    }},
+                data=json_data,
+                vapid_private_key=os.getenv("APP_PUSH_VAPID_PRIVATE_KEY"),
+                vapid_claims={
+                    "sub": "mailto:need.more2017@yandex.ru",
+                }
+            )
+            result.get("delivered").append(sub_id)
+        except WebPushException as ex:
+            result.get("not_delivered").append(sub_id)
+            print("WebPushException: {}", repr(ex))
+            # Mozilla returns additional information in the body of the response.
+            if ex.response and ex.response.json():
+             extra = ex.response.json()
+             print("Remote service replied with a {}:{}, {}",
+                extra.code,
+                extra.errno,
+                extra.message
+             )
+
+    resp_body_dict = U.make_resp_json_body(
+        U.success,
+        result
+    )
+
+    return jsonify(resp_body_dict)
+
+
+def dict_to_binary(dict: dict):
+    str = json.dumps(dict)
+    binary = ' '.join(format(ord(letter), 'b') for letter in str)
+    return binary
+
+
+def get_subscription_endpoint_by_sub_id(id: int):
+    return PushSubscription.query.filter(PushSubscription.id == id).one_or_none()
 
 
 def get_user_agent():

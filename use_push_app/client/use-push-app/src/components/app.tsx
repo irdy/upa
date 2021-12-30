@@ -9,6 +9,7 @@ import { useObservable } from "../hooks/useObservable";
 import { AuthResponseData, AuthStore } from "../stores/auth-store";
 import { Preloader } from "./ui/other/preloader";
 import { PushSubscriptionsList } from "./push-subscriptions-list";
+import { SendPushPage } from "./send-push-page";
 
 /* todo SafeAreaView - use with Mobile Router */
 
@@ -31,6 +32,7 @@ function Router() {
           <Route element={<RequiredAuth />}>
             <Route path="/" element={<Main/>}/>
             <Route path="/push_subscriptions" element={<PushSubscriptionsList/>}/>
+            <Route path="/send_push" element={<SendPushPage />}/>
           </Route>
 
           <Route path="*" element={<NotFound />}/>

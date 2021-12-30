@@ -20,9 +20,7 @@ function _AppListItem({ title }: AppListItemProps) {
 
 function _AppListItemClickable({ title, onPress }: AppListItemClickableProps) {
   return (
-    <View style={styles.item}>
-      <TextButton title={title} onPress={onPress} /> {/*style={styles.title}*/}
-    </View>
+    <TextButton title={title} onPress={onPress} />
   )
 }
 

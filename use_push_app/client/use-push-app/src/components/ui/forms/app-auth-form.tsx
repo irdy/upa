@@ -18,7 +18,7 @@ interface AppAuthFormProps {
 }
 
 function _AppAuthForm({ onSubmit }: AppAuthFormProps) {
-  return <View style={styles.form}>
+  return <View style={formStyles.form}>
     <Formik
       initialValues={initialValues}
       onSubmit={onSubmit}
@@ -27,7 +27,7 @@ function _AppAuthForm({ onSubmit }: AppAuthFormProps) {
         <View>
           <Text>Username</Text>
           <TextInput
-            style={styles.textInput}
+            style={formStyles.textInput}
             onChangeText={handleChange('username')}
             onBlur={handleBlur('username')}
             value={values.username}
@@ -36,7 +36,7 @@ function _AppAuthForm({ onSubmit }: AppAuthFormProps) {
           <Text>Password</Text>
           <TextInput
             type={"password"}
-            style={styles.textInput}
+            style={formStyles.textInput}
             onChangeText={handleChange('password')}
             onBlur={handleBlur('password')}
             value={values.password}
@@ -51,7 +51,7 @@ function _AppAuthForm({ onSubmit }: AppAuthFormProps) {
 
 export const AppAuthForm = React.memo(_AppAuthForm);
 
-const styles = StyleSheet.create({
+export const formStyles = StyleSheet.create({
   form: {
     width: 300,
     backgroundColor: "#ddd",

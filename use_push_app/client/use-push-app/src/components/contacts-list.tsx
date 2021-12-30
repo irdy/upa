@@ -10,15 +10,23 @@ interface ContactItem {
   item: Contact
 }
 
+export interface PushSubscriptionNavState {
+  contact_user_id: number,
+  contact_name: string
+}
+
 export function _ContactsList({ contactsList }: ContactsListProps) {
   const navigate = useNavigate();
 
   const renderItem = React.useCallback(({ item }: ContactItem) => {
     function _contactSelected() {
+      const pushSubscriptionNavState: PushSubscriptionNavState = {
+        contact_user_id: item.contact_user_id,
+        contact_name: item.name
+      }
+
       navigate("/push_subscriptions", {
-        state: {
-          contact_user_id: item.contact_user_id
-        }
+        state: pushSubscriptionNavState
       })
     }
     return <AppListItemClickable title={item.name} onPress={_contactSelected} />;
