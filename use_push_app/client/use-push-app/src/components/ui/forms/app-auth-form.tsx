@@ -21,7 +21,7 @@ interface AppAuthFormProps {
 
 const AppAuthSchema = Yup.object().shape({
   username: Yup.string()
-    .min(6, 'Too short username')
+    .min(5, 'Too short username')
     .max(30, 'Too long username!')
     .required('Username is required!'),
 
