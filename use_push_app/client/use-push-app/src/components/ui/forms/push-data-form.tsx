@@ -25,8 +25,6 @@ const PushDataSchema = Yup.object().shape({
     .required('Message is required!'),
 });
 
-console.log("PushDataSchema", PushDataSchema)
-
 export const PushDataForm = React.memo(function PushDataForm({onSubmit}: PushDataFormProps) {
   return (
     <View style={formStyles.form}>
