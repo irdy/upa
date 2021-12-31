@@ -1,7 +1,5 @@
 import uuid
-
 from flask import make_response, jsonify, send_from_directory
-
 from database import db_session
 from use_push_app import app
 from use_push_app.controllers.users_controller import create_user
@@ -46,10 +44,12 @@ def auth_sign_in():
 
 @app.route('/api/auth/sign_up', methods=['POST'])
 def auth_sign_up():
-    # SIGN_UP accessible only with `Invitation link`
+    # SIGN_UP accessible only with `Invitation link` (generated with method below)
     data = U.get_request_payload()
     Validator.validate_required_keys(data, ["link_uuid"])
-    return create_user(data=data, link_uuid=data["link_uuid"])
+    link_uuid = Validator.is_valid_uuid(data["link_uuid"])
+    # Invitation link will be deleted after user will be created (inside create user method)
+    return create_user(data=data, link_uuid=link_uuid)
 
 
 @app.route('/api/auth/invitation_link', methods=['POST'])

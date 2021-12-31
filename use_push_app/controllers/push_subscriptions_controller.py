@@ -7,6 +7,7 @@ from use_push_app.utils import QueryUtils, Validator, U
 import base64
 from pywebpush import webpush, WebPushException
 import json
+from use_push_app.token_manager import TokenManager
 
 
 @app.route('/api/users/<int:user_id>/push_subscriptions', methods=['POST'])
@@ -91,10 +92,17 @@ def send_push_notification():
     message_body = data["message_body"]
     sub_ids = data["sub_ids"]
 
+    sender_user_id = TokenManager.get_user_id()
+    user_query = User.query.filter(User.id == sender_user_id).one_or_none()
+    if user_query is None:
+        return U.make_error_response("TOKEN_IS_NOT_BIND_TO_USER")
+
+    sender_user_name = user_query.username
+
     result = dict(
         not_existed_subs = [],
-        delivered=[],
-        not_delivered=[]
+        delivered = [],
+        not_delivered = []
     )
 
     for sub_id in sub_ids:
@@ -104,7 +112,7 @@ def send_push_notification():
 
         try:
             push_data = {
-                #"title": "TITLE!!!!!",
+                "title": "Message from " + sender_user_name,
                 "message": message_body
             }
 

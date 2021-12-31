@@ -46,8 +46,11 @@ export function Auth({ authType }: AuthProps) {
   }
 
   return (
-    <View style={layoutStyles.horCenter}>
-      <Text>Please, {authType === "signUp" ? "Sign Up" : "Sign In"}</Text>
+    <View style={layoutStyles.content}>
+      <View style={layoutStyles.mb_16}>
+        <Text>Please, {authType === "signUp" ? "Sign Up" : "Sign In"}</Text>
+      </View>
+
       <AppAuthForm onSubmit={onAuthFormSubmit}/>
     </View>
   )

@@ -1,5 +1,5 @@
-import { View } from "react-native";
-import { layoutStyles } from "../styles/common-styles";
+import { View, Text } from "react-native";
+import { colorStyles, layoutStyles } from "../styles/common-styles";
 import { Header } from "../header";
 import React from "react";
 import { Heading } from "./ui/headings/heading";
@@ -7,17 +7,18 @@ import { PushDataForm, PushDataFormValues } from "./ui/forms/push-data-form";
 import { useLocation } from "react-router-dom";
 import { PushNotificationStore } from "../stores/push-notification-store";
 
-interface SendPushPageProps { }
+interface SendPushPageProps {
+}
 
 export interface SendPushNavState {
-  sub_ids: number[]
+  sub_ids: number[],
+  contact_name: string,
+  user_agent: string
 }
 
 export function SendPushPage(props: SendPushPageProps) {
-  const { state } = useLocation();
-  const { sub_ids }: SendPushNavState = state;
-
-  console.log(sub_ids)
+  const {state} = useLocation();
+  const {contact_name, user_agent, sub_ids}: SendPushNavState = state;
 
   const onSubmit = React.useCallback(async (values: PushDataFormValues) => {
     try {
@@ -29,10 +30,18 @@ export function SendPushPage(props: SendPushPageProps) {
   }, [sub_ids]);
 
   return <View style={layoutStyles.page}>
-    <Header />
+    <Header/>
     <View style={layoutStyles.content}>
-      <Heading type={"h2"} title={"Send Push"} />
-      <PushDataForm onSubmit={onSubmit} />
+      <View style={layoutStyles.mb_16}>
+        <Heading type={"h2"} title={`Send Push to ${contact_name}`}/>
+      </View>
+      <View style={layoutStyles.mb_16}>
+        <Text>
+          <Text style={colorStyles.warning}>
+            User Agent:
+          </Text> {user_agent}</Text>
+      </View>
+      <PushDataForm onSubmit={onSubmit}/>
     </View>
   </View>
 

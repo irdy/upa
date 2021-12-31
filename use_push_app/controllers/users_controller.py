@@ -34,6 +34,7 @@ def cross_link_users(data: dict, invitation_link: InvitationLink) -> User:
         2) create new Contact for new User with contact_user_id={user_id}
 
         3) create new Contact for User, which invite the new User, with ref for new User
+        4) delete invitation link!
     """
     # 1)
     invited_user = User(username=data["username"], password=data["password"], user_id=user_referrer.id)
@@ -48,6 +49,7 @@ def cross_link_users(data: dict, invitation_link: InvitationLink) -> User:
     user_referrer.contacts.append(contact_of_user_referrer)
     # save user_referrer's contact
     db_session.commit()
+    # 4)
     db_session.delete(invitation_link)
     db_session.commit()
 

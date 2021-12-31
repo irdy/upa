@@ -21,11 +21,13 @@ export const PushSubscriptionsList = React.memo(function PushSubscriptionsList()
   const { contact_user_id, contact_name }: PushSubscriptionNavState = state;
 
   const renderItem = React.useCallback(({ item }: SubscribedDeviceItem) => {
-    console.log("item", item);
+    // console.log("item", item);
 
     function onPress() {
       const sendPushNavState: SendPushNavState = {
-        sub_ids: [item.push_subscription_id]
+        sub_ids: [item.push_subscription_id],
+        user_agent: item.user_agent,
+        contact_name: contact_name
       }
 
       navigate("/send_push", {
@@ -34,7 +36,7 @@ export const PushSubscriptionsList = React.memo(function PushSubscriptionsList()
     }
 
     return <AppListItemClickable title={item.user_agent} onPress={onPress} />;
-  }, [navigate]);
+  }, [contact_name, navigate]);
 
   const keyExtractor = React.useCallback((item) => item.id, []);
 
@@ -53,8 +55,14 @@ export const PushSubscriptionsList = React.memo(function PushSubscriptionsList()
   return <View style={layoutStyles.page}>
     <Header />
     <View style={layoutStyles.content}>
-      <Heading type={"h2"} title={"Subscriptions"} />
-      <Text>List of active subscription for user {contact_name}</Text>
+      <View style={layoutStyles.mb_16}>
+        <Heading type={"h2"} title={"Subscriptions"} />
+      </View>
+
+      <View style={layoutStyles.mb_16}>
+        <Text>List of active subscription for user {contact_name}</Text>
+      </View>
+
       <FlatList
         data={subscribedDevicesList}
         renderItem={renderItem}

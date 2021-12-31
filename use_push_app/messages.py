@@ -30,6 +30,7 @@ messages = {
     # 500
     'TOKEN_IS_NOT_BIND_TO_USER': "Can't find User associated with current token",
     'NO_USER_ID_INTO_ACCESS_TOKEN': "Access Token Body does not contain user_id",
+    'INVITATION_LINK_NOT_FOUND': "Can't find invitation link in DB!",
     # 404
     'SUBSCRIPTION_NOT_FOUND': "Push subscription not found on server",
 }

@@ -1,26 +1,57 @@
 body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
-
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 /* These styles make the body full-height */
 html,
 body {
-  height: 100%;
+    height: 100vh;
+    width: 100vw;
+    box-sizing: border-box;
+    overflow: hidden;
 }
+
 /* These styles disable body scrolling if you are using <ScrollView> */
 body {
     overflow: hidden;
 }
+
 /* These styles make the root element full-height */
 #root {
     display: flex;
     height: 100%;
+    width: 100%;
     background: antiquewhite;
+    /*padding: 8px;*/
+}
+
+#qr-code-canvas {
+    width: 1px;
+    height: 1px;
+}
+
+#push-message-data {
+    resize: vertical;
+}
+
+.warning {
+    color: firebrick;
+}
+
+.error-message {
+    color: maroon;
+    font-size: 14px;
+}
+
+.error {
+    color: maroon;
+}
+
+.error * {
+    color: maroon;
 }
